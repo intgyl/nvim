@@ -65,9 +65,7 @@ local plugins = {
 		},
 	},
 
-
-
-
+	"MeanderingProgrammer/render-markdown.nvim",
 }
 local opts = {} -- 注意要定义这个变量
 require("lazy").setup(plugins, opts)

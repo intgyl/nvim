@@ -29,5 +29,6 @@ require("plugins/toggleterm")
 require("plugins/nerdcommenter")
 require("plugins/copilot-chat")
 require("plugins/astyle")
+require("plugins/markdown")
 --require("plugins/gtags_telscope")
 
