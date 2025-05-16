@@ -18,7 +18,7 @@ require("hlchunk").setup({
 	indent = {
 		enable = true,
 		use_treesitter = false,
-		chars = { "│" },
+		chars = { "┊" },
 		style = {
 			{ fg = "#6f3f3f" }, -- 红
 			{ fg = "#7a7345" }, -- 黄
