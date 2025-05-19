@@ -24,12 +24,40 @@ require("nvim-tree").setup({
 		local api = require("nvim-tree.api")
 
 		local function opts(desc)
-			return { desc = "nvim-tree: " .. desc, buffer = bufnr, noremap = true, silent = true, nowait = true }
+			return {
+				desc = "nvim-tree: " .. desc,
+				buffer = bufnr,
+				noremap = true,
+				silent = true,
+				nowait = true,
+			}
 		end
 
-		vim.keymap.set('n', 's', api.node.open.horizontal, opts('Open: Horizontal Split'))
-		vim.keymap.set("n", "v", api.node.open.vertical, opts("Open: Vertical Split"))
-		vim.keymap.set("n", "<CR>", api.node.open.edit, opts("Open: Vertical Split"))
+		api.config.mappings.default_on_attach(bufnr)
 
-	end
+		-- 自定义 vertical split 打开文件
+		vim.keymap.set("n", "v", function()
+			local node = api.tree.get_node_under_cursor()
+			if not node then return end
+
+			if node.type == "file" then
+				api.tree.close()
+				vim.cmd("vsplit " .. vim.fn.fnameescape(node.absolute_path))
+				api.tree.open()
+			end
+		end, opts("Open: Vertical Split"))
+
+		-- 自定义 horizontal split 打开文件
+		vim.keymap.set("n", "s", function()
+			local node = api.tree.get_node_under_cursor()
+			if not node then return end
+
+			if node.type == "file" then
+				api.tree.close()
+				vim.cmd("split " .. vim.fn.fnameescape(node.absolute_path))
+				api.tree.open()
+			end
+		end, opts("Open: Horizontal Split"))
+
+	end,
 })
