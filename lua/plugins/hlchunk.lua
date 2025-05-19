@@ -2,7 +2,7 @@ require("hlchunk").setup({
 	chunk = {
 		enable = true,
 		notify = false,
-		use_treesitter = false,
+		use_treesitter = true,
 		chars = {
 			horizontal_line = "─",
 			vertical_line = "│",
