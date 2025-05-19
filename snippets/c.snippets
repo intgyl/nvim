@@ -276,6 +276,30 @@ snippet print
 	printf("${1:}\n");
 snippet comment
 	/* ${1:} */
+snippet print_data
+
+	static void print_data(char *tag, uint8_t *data, int len)
+	{
+		unsigned int i;
+
+		printf("%s:\r\n", tag);
+		printf("%05x: ", 0);
+
+		for (i = 0; i < len; i++) {
+			printf("%02x", data[i]);
+
+			if (0 == (i + 1) % 4)
+				printf(" ");
+
+			if ((0 == (i + 1) % 16) && (i + 1 < len)) {
+				printf("\n");
+				printf("%05x: ", i + 1);
+			}
+		}
+
+		printf("\n\n");
+	}
+
 # printf
 snippet pr
 	printf("${1:%s}\n"${2});
