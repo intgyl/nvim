@@ -210,10 +210,10 @@ cmp.setup.cmdline(':', {
 })
 
 vim.keymap.set('n', 'gd', vim.lsp.buf.declaration, bufopts)
--- vim.keymap.set('n', '<C-k>', vim.lsp.buf.definition, bufopts)
+vim.keymap.set('n', '<C-k>', vim.lsp.buf.definition, bufopts)
 vim.keymap.set('n', 'K', vim.lsp.buf.hover, bufopts)
 -- vim.keymap.set('n', '<space>D', vim.lsp.buf.type_definition, bufopts)
 -- vim.keymap.set('n', '<space>rn', vim.lsp.buf.rename, bufopts)
 vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
-vim.keymap.set('n', '<C-t>', '<C-o>', bufopts)
+-- vim.keymap.set('n', '<C-t>', '<C-o>', bufopts)
 -- vim.keymap.set({"i"}, "<C-K>", function() luasnip.expand() end, {silent = true})
