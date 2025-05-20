@@ -147,10 +147,10 @@ cmp.setup{
 
 		-- enter自动选择第一个
 		['<CR>'] = cmp.mapping({
-			i = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
+			i = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }),
 			c = function(fallback)
 				if cmp.visible() then
-					cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true})
+					cmp.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true})
 				else
 					fallback()
 				end
