@@ -2,7 +2,7 @@ require("hlchunk").setup({
 	chunk = {
 		enable = true,
 		notify = false,
-		use_treesitter = false,
+		use_treesitter = true,
 		chars = {
 			horizontal_line = "─",
 			vertical_line = "│",
@@ -17,7 +17,7 @@ require("hlchunk").setup({
 	},
 	indent = {
 		enable = true,
-		use_treesitter = false,
+		use_treesitter = true,
 		chars = { "┊" },
 		style = {
 			{ fg = "#6f3f3f" }, -- 红
