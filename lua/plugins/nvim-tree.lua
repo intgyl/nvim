@@ -35,8 +35,8 @@ require("nvim-tree").setup({
 
 		api.config.mappings.default_on_attach(bufnr)
 
-		vim.keymap.set('n', 's', api.node.open.horizontal_no_picker, opts('Open: Horizontal Split'))
-		vim.keymap.set("n", "v", api.node.open.vertical_no_picker, opts("Open: Vertical Split"))
+		vim.keymap.set('n', 'v', api.node.open.horizontal_no_picker, opts('Open: Horizontal Split'))
+		vim.keymap.set("n", "s", api.node.open.vertical_no_picker, opts("Open: Vertical Split"))
 		vim.keymap.set("n", "<CR>", api.node.open.edit, opts("Open: Vertical Split"))
 	end,
 })
