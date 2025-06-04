@@ -35,3 +35,27 @@ require("hlchunk").setup({
 		enable = true,
 	},
     })
+
+vim.g.plugin_visible = true
+
+vim.keymap.set("n", "<F7>", function()
+	local ok, gitsigns = pcall(require, "gitsigns")
+	if not ok then
+		vim.notify("gitsigns.nvim is not loaded", vim.log.levels.ERROR)
+		return
+	end
+
+	if vim.g.plugin_visible then
+		vim.cmd("DisableHLChunk")
+		vim.cmd("DisableHLIndent")
+		gitsigns.toggle_current_line_blame(false)
+		vim.g.plugin_visible = false
+		vim.notify("Disable hlchunk hlindent gitsigns")
+	else
+		vim.cmd("EnableHLChunk")
+		vim.cmd("EnableHLIndent")
+		gitsigns.toggle_current_line_blame(true)
+		vim.g.plugin_visible = true
+		vim.notify("Enable hlchunk hlindent gitsigns")
+	end
+end, { desc = "Toggle HLChunk & Gitsigns", silent = true })
