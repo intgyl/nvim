@@ -57,3 +57,4 @@ vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
 	callback = highlight_trailing_whitespace,
 })
 
+vim.api.nvim_set_hl(0, 'MatchParen', { fg = '#ff79c6', bg = 'NONE', bold = true })

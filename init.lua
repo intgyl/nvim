@@ -31,6 +31,7 @@ require("plugins/nerdcommenter")
 require("plugins/copilot-chat")
 require("plugins/astyle")
 require("plugins/markdown")
+require("plugins/rainbow")
 --require("plugins/gtags_telscope")
 
 if not vim.g.is_large_file then
