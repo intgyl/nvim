@@ -10,7 +10,6 @@ opt.mouse = ''              -- 启用鼠标支持
 opt.ignorecase = true       -- 搜索忽略大小写
 opt.smartcase = true        -- 智能大小写搜索
 opt.termguicolors = true    -- 启用真彩色
-opt.wrap = false            -- 不自动换行
 opt.cursorline = true       -- 光标行
 opt.wrap = true             -- 自动换行
 
@@ -43,4 +42,9 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 		end
 	end
 })
+
+vim.keymap.set("n", "<leader>w", function()
+	vim.wo.wrap = not vim.wo.wrap
+	print("wrap: " .. tostring(vim.wo.wrap))
+end, { desc = "Toggle line wrap" })
 
