@@ -14,7 +14,6 @@ require("core.keymaps")
 -- 插件
 require("plugins.lualine")
 require("plugins/nvim-tree")
-require("plugins/treesitter")
 require("plugins/lsp")
 require("plugins/nvim-cmp")
 -- require("plugins/comment")
@@ -35,5 +34,7 @@ require("plugins/rainbow")
 --require("plugins/gtags_telscope")
 
 if not vim.g.is_large_file then
+	require("plugins/treesitter")
+	require("plugins/tagbar")
 	require("plugins/hlchunk")
 end

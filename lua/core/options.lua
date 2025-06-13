@@ -20,18 +20,6 @@ opt.wrap = true             -- 自动换行
 opt.splitright = true
 opt.splitbelow = true
 
--- tagbar
-vim.cmd([[
-  autocmd FileType * if &filetype !=# 'go' | let g:tagbar_width = 35 | let g:tagbar_left = 1 | endif
-
-  if !exists('g:tagbar_keymap_set')
-    let g:tagbar_keymap_set = 1
-    nnoremap <F2> :TagbarToggle<CR>
-  endif
-
-  autocmd VimEnter * if &filetype !=# 'go' | call tagbar#autoopen(1) | endif
-]])
-
 -- 记录上次退出时的位置
 vim.api.nvim_create_autocmd("BufReadPost", {
 	callback = function()

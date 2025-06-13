@@ -1,6 +1,6 @@
 local M = {}
 
-M.large_file_threshold = 1024 * 1024 * 2  -- 2MB
+M.large_file_threshold = 1024 * 512
 vim.g.is_large_file = false
 
 local function check_large_file(file)
