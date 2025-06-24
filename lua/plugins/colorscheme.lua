@@ -34,6 +34,12 @@ require("tokyonight").setup({
 
 		-- 当前行号
 		-- highlights.CursorLineNr = { fg = colors.fg, bold = true }
+
+
+		-- 取消nvim-tree背景色
+		highlights.NvimTreeNormal = { bg = "NONE" }
+		highlights.NvimTreeNormalNC = { bg = "NONE" }
+		highlights.NvimTreeEndOfBuffer = { bg = "NONE" }
 	end,
 })
 
