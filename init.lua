@@ -3,8 +3,8 @@ vim.g.mapleader = ","
 vim.g.maplocalleader = ","
 vim.opt.termguicolors = true
 
-local largefile = require("core.largefile")
-largefile.check_argv()
+require("core.largefile").check_argv()
+require("core.file_type").check_argv()
 
 require("plugins.plugins-setup")
 
@@ -36,5 +36,8 @@ require("plugins/rainbow")
 if not vim.g.is_large_file then
 	require("plugins/treesitter")
 	require("plugins/tagbar")
-	require("plugins/hlchunk")
+
+	if vim.g.current_filetype ~= "markdown" then
+		require("plugins/hlchunk")
+	end
 end
