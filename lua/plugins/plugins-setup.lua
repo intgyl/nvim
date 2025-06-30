@@ -48,8 +48,9 @@ local plugins = {
 	"preservim/nerdcommenter",
 	"windwp/nvim-autopairs", -- 自动补全括号
 
-	-- "akinsho/bufferline.nvim", -- buffer分割线
+	"akinsho/bufferline.nvim", -- buffer分割线
 	"lewis6991/gitsigns.nvim", -- 左则git提示
+	"MeanderingProgrammer/render-markdown.nvim",
 
 	{
 		'nvim-telescope/telescope.nvim',
@@ -65,7 +66,6 @@ local plugins = {
 		},
 	},
 
-	"MeanderingProgrammer/render-markdown.nvim",
 }
 local opts = {} -- 注意要定义这个变量
 require("lazy").setup(plugins, opts)
