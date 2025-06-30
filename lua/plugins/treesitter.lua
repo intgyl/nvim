@@ -3,7 +3,10 @@ require'nvim-treesitter.configs'.setup {
 	ensure_installed = { "vim", "vimdoc", "bash", "c", "cpp", "javascript", "json", "lua", "python", "typescript", "tsx", "css", "rust", "markdown", "markdown_inline" }, -- one of "all" or a list of languages
 
 	highlight = { enable = true },
-	indent = { enable = true },
+	indent = {
+		enable = true,
+		disable = { "c", "cpp" },
+	},
 }
 
 -- 设置高亮样式：为 TODO 注释设置橙色粗体
