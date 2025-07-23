@@ -57,13 +57,19 @@ local plugins = {
 		dependencies = { 'nvim-lua/plenary.nvim' },
 	},
 
-	"github/copilot.vim",
-	{
-		"CopilotC-Nvim/CopilotChat.nvim",
-		dependencies = {
-			{ "github/copilot.vim" },
-			{ "nvim-lua/plenary.nvim"},
-		},
+--	"github/copilot.vim",
+--	{
+--		"CopilotC-Nvim/CopilotChat.nvim",
+--		dependencies = {
+--			{ "github/copilot.vim" },
+--			{ "nvim-lua/plenary.nvim"},
+--		},
+--	},
+
+	"Exafunction/windsurf.nvim",
+	dependencies = {
+		"nvim-lua/plenary.nvim",
+		"hrsh7th/nvim-cmp",
 	},
 
 }
