@@ -88,7 +88,7 @@ cmp.setup{
 		]]
 
 		-- Tab：仅在 snippet 中跳转，不用于补全选择
-		["<Tab>"] = function(fallback)
+		["<c-l>"] = function(fallback)
 			if luasnip.expand_or_jumpable() then
 				luasnip.expand_or_jump()
 			else
@@ -97,7 +97,7 @@ cmp.setup{
 		end,
 
 		-- Shift-Tab：跳转回上一个 snippet 占位符
-		["<S-Tab>"] = function(fallback)
+		["<c-h>"] = function(fallback)
 			if luasnip.jumpable(-1) then
 				luasnip.jump(-1)
 			else
