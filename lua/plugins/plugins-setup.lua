@@ -72,6 +72,8 @@ local plugins = {
 		"hrsh7th/nvim-cmp",
 	},
 
+	"dhananjaylatkar/cscope_maps.nvim"
+
 }
 local opts = {} -- 注意要定义这个变量
 require("lazy").setup(plugins, opts)
