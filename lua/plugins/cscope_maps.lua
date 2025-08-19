@@ -30,9 +30,9 @@ require("cscope_maps").setup({
 		statusline_indicator = nil,
 		-- try to locate db_file in parent dir(s)
 		project_rooter = {
-			enable = false, -- "true" or "false"
+			enable = true, -- "true" or "false"
 			-- change cwd to where db_file is located
-			change_cwd = false, -- "true" or "false"
+			change_cwd = true, -- "true" or "false"
 		},
 		-- cstag related defaults
 		tag = {
