@@ -19,7 +19,7 @@ opt.wrap = true             -- 自动换行
 -- 默认新窗口右和下
 opt.splitright = true
 opt.splitbelow = true
-opt.updatetime = 10
+opt.updatetime = 500
 
 -- 记录上次退出时的位置
 vim.api.nvim_create_autocmd("BufReadPost", {
