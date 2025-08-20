@@ -32,7 +32,7 @@ require("cscope_maps").setup({
 		project_rooter = {
 			enable = true, -- "true" or "false"
 			-- change cwd to where db_file is located
-			change_cwd = true, -- "true" or "false"
+			change_cwd = false, -- "true" or "false"
 		},
 		-- cstag related defaults
 		tag = {
