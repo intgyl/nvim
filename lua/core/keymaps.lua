@@ -45,9 +45,9 @@ keymap.set("i", "<C-f>", "<Right>")
 
 -- 鼠标模式
 vim.keymap.set("n", "<leader>n", function()
-  vim.o.mouse = "n"
-  print("Mouse mode set to 'n'")
-end, { desc = "Set mouse mode to normal" })
+  vim.o.mouse = "a"
+  print("Mouse mode set to 'a'")
+end, { desc = "Set mouse mode to all" })
 
 vim.keymap.set("n", "<leader>=", function()
   vim.o.mouse = ""
