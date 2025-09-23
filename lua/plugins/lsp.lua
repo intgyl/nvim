@@ -18,17 +18,6 @@ require("mason-lspconfig").setup({
 	},
 })
 
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
-local lspconfig = require('lspconfig')
-
-require("lspconfig").lua_ls.setup {
-	capabilities = capabilities,
-}
-
--- 配置 Python 的 LSP
-lspconfig.pylsp.setup{}
-
--- 配置 C/C++ 的 LSP
-lspconfig.clangd.setup{}
-
-lspconfig.lua_ls.setup{}
+vim.lsp.enable('pyls')
+vim.lsp.enable('clangd')
+vim.lsp.enable('lua_ls')
