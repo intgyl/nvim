@@ -13,6 +13,8 @@ opt.termguicolors = true    -- 启用真彩色
 opt.cursorline = true       -- 光标行
 opt.wrap = true             -- 自动换行
 
+vim.g.c_syntax_for_h = 1
+
 -- 系统剪贴板
 -- opt.clipboard:append("unnamedplus")
 
