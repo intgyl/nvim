@@ -12,6 +12,7 @@ keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 -- 切换buffer
 keymap.set("n", "<C-L>", ":bnext<CR>")
 keymap.set("n", "<C-H>", ":bprevious<CR>")
+keymap.set("n", "t16", ":%!xxd<CR>")
 
 -- ---------- 插件 ---------- ---
 -- nvim-tree
