@@ -12,6 +12,7 @@ opt.smartcase = true        -- 智能大小写搜索
 opt.termguicolors = true    -- 启用真彩色
 opt.cursorline = true       -- 光标行
 opt.wrap = true             -- 自动换行
+opt.swapfile = false
 
 vim.g.c_syntax_for_h = 1
 
