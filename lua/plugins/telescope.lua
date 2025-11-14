@@ -19,9 +19,26 @@ require('telescope').setup({
 				["<C-n>"] = "move_selection_next",  -- 下一个项
 				["<C-p>"] = "move_selection_previous",  -- 上一个项
 				["<C-c>"] = "close",  -- 关闭窗口
+
+				["<CR>"] = function(prompt_bufnr)
+					local actions = require("telescope.actions")
+					actions.select_default(prompt_bufnr)
+					vim.schedule(function()
+						vim.cmd("normal! zz")
+					end)
+				end,
 			},
 			n = {
 				["<C-q>"] = "close",  -- 关闭窗口
+
+				["<CR>"] = function(prompt_bufnr)
+					local actions = require("telescope.actions")
+					actions.select_default(prompt_bufnr)
+					vim.schedule(function()
+						vim.cmd("normal! zz")
+					end)
+				end,
+
 			}
 		},
 	},
