@@ -15,9 +15,11 @@ require("mason-lspconfig").setup({
 		"pyright",
 		"clangd",
 		"bashls",
+		"java",
 	},
 })
 
 vim.lsp.enable('pyls')
 vim.lsp.enable('clangd')
 vim.lsp.enable('lua_ls')
+vim.lsp.enable('java')
