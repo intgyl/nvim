@@ -40,3 +40,9 @@ vim.keymap.set("n", "<leader>w", function()
 	print("wrap: " .. tostring(vim.wo.wrap))
 end, { desc = "Toggle line wrap" })
 
+vim.api.nvim_create_autocmd({"BufNewFile", "BufRead"}, {
+	pattern = "SConscript",
+	callback = function()
+		vim.opt_local.filetype = "python"
+	end,
+})
