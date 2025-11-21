@@ -191,21 +191,41 @@ cmp.setup.filetype('gitcommit', {
 	})
 })
 
--- Use buffer source foj `/` (if you enabled `native_menu`, this won't work anymore).
+-- `/` cmdline setup.
 cmp.setup.cmdline('/', {
-	completion = { autocomplete = false },
+	completion = { completeopt = "menu,menuone,noselect" },
+	mapping = cmp.mapping.preset.cmdline({
+		["<cr>"] = {
+			c = cmp.mapping.confirm({ select = false }),
+		},
+	}),
+
+
 	sources = {
 		{ name = 'buffer' }
 	}
 })
 
--- Use cmdline & path source for ':' (if you enabled `native_menu`, this won't work anymore).
+-- `:` cmdline setup.
 cmp.setup.cmdline(':', {
-	completion = { autocomplete = false },
+	completion = { completeopt = "menu,menuone,noselect" },
+	mapping = cmp.mapping.preset.cmdline({
+		["<cr>"] = {
+			c = cmp.mapping.confirm({ select = false }),
+		},
+	}),
+
 	sources = cmp.config.sources({
 		{ name = 'path' }
-	}, {
-		{ name = 'cmdline' }
+	},
+
+	{
+		{
+			name = 'cmdline',
+			option = {
+				ignore_cmds = { 'Man', '!' }
+			}
+		}
 	})
 })
 
