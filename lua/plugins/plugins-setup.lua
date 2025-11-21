@@ -48,6 +48,7 @@ local plugins = {
 	"preservim/nerdcommenter",
 	"windwp/nvim-autopairs", -- 自动补全括号
 	"folke/noice.nvim",
+	"rcarriga/nvim-notify",
 
 	"akinsho/bufferline.nvim", -- buffer分割线
 	"lewis6991/gitsigns.nvim", -- 左则git提示
