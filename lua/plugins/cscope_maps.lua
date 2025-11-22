@@ -23,7 +23,7 @@ require("cscope_maps").setup({
 			window_pos = "bottom", -- "bottom", "right", "left" or "top"
 		},
 		-- "true" does not open picker for single result, just JUMP
-		skip_picker_for_single_result = false, -- "false" or "true"
+		skip_picker_for_single_result = true, -- "false" or "true"
 		-- custom script can be used for db build
 		db_build_cmd = { script = "default", args = { "-bqkv" } },
 		-- statusline indicator, default is cscope executable
