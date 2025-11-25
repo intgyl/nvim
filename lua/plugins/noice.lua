@@ -1,4 +1,21 @@
 require("noice").setup({
+	routes = {
+		{
+			filter = {
+				event = "msg_show",
+				kind = "search_count",
+			},
+			opts = { skip = true},
+		},
+		{
+			view = "notify",
+			filter = {
+				event = "msg_show",
+				kind = "",
+			},
+		},
+	},
+
 	presets = {
 		-- you can enable a preset by setting it to true, or a table that will override the preset config
 		-- you can also add custom presets that you can enable/disable with enabled=true
