@@ -36,7 +36,7 @@ require("plugins/cscope_maps")
 --require("plugins/gtags_telscope")
 require("plugins/noice")
 require("plugins/notify")
-require("plugins/hlslens")
+-- require("plugins/hlslens")
 
 if not vim.g.is_large_file then
 	require("plugins/treesitter")
