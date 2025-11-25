@@ -4,7 +4,7 @@ vim.cmd([[
 
 	if !exists('g:tagbar_keymap_set')
 		let g:tagbar_keymap_set = 1
-		nnoremap <F2> :TagbarToggle<CR>
+		nnoremap <silent> <F2> :TagbarToggle<CR>
 	endif
 
 	autocmd VimEnter * if &filetype !=# 'go' | call tagbar#autoopen(1) | endif

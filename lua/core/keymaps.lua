@@ -16,7 +16,7 @@ keymap.set("n", "t16", ":%!xxd<CR>")
 
 -- ---------- 插件 ---------- ---
 -- nvim-tree
-keymap.set("n", "<F3>", ":NvimTreeToggle<CR>")
+keymap.set("n", "<F3>", ":NvimTreeToggle<CR>", { silent = true, noremap = true })
 
 keymap.set("n", "q", ":q<ENTER>")
 keymap.set("n", "Q", ":q<ENTER>")
