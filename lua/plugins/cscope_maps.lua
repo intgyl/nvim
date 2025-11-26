@@ -41,7 +41,7 @@ require("cscope_maps").setup({
 			-- order of operation to run for ":Cstag"
 			order = { "cs", "tag_picker", "tag" }, -- any combination of these 3 (ops can be excluded)
 			-- cmd to use for "tag" op in above table
-			tag_cmd = "tjump",
+			tag_cmd = "tag",
 		},
 	},
 
