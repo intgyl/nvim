@@ -37,7 +37,7 @@ require("cscope_maps").setup({
 		-- cstag related defaults
 		tag = {
 			-- bind ":Cstag" to "<C-]>"
-			keymap = true, -- "true" or "false"
+			keymap = false, -- "true" or "false"
 			-- order of operation to run for ":Cstag"
 			order = { "cs", "tag_picker", "tag" }, -- any combination of these 3 (ops can be excluded)
 			-- cmd to use for "tag" op in above table
@@ -51,4 +51,4 @@ require("cscope_maps").setup({
 	}
 })
 
--- vim.keymap.set({ "n", "v" }, "<C-k>", "<cmd>Cstag<cr>", { desc = "cstag" })
+vim.keymap.set({ "n", "v" }, "<C-]>", "<cmd>Cstag<cr>zz", { desc = "cstag" })
