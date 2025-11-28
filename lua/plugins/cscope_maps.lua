@@ -51,4 +51,18 @@ require("cscope_maps").setup({
 	}
 })
 
-vim.keymap.set({ "n", "v" }, "<C-]>", "<cmd>Cstag<cr>zz", { desc = "cstag" })
+vim.keymap.set({ "n", "v" }, "<C-]>", function()
+	-- 触发 Cstag（可能是直接跳，也可能弹 telescope 选择）
+	vim.cmd("Cstag")
+
+	-- 等真正跳到某个 buffer 后再居中，只执行一次
+	vim.api.nvim_create_autocmd({ "CursorMoved", "BufWinEnter" }, {
+		once = true,
+		callback = function()
+			-- 只在普通 buffer 里执行 zz，避免在 telescope / prompt 里乱滚动或输入
+			if vim.bo.buftype == "" then
+				vim.cmd("normal! zz")
+			end
+		end,
+	})
+end, { desc = "cstag" })
