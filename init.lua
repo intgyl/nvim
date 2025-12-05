@@ -37,10 +37,11 @@ require("plugins/cscope_maps")
 -- require("plugins/noice")
 -- require("plugins/notify")
 -- require("plugins/hlslens")
+require("plugins/outline")
 
 if not vim.g.is_large_file then
 	require("plugins/treesitter")
-	require("plugins/tagbar")
+	-- require("plugins/tagbar")
 
 	if vim.g.current_filetype ~= "markdown" then
 		require("plugins/hlchunk")

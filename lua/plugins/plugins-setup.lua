@@ -26,6 +26,7 @@ local plugins = {
 	'preservim/tagbar',
 	"shellRaining/hlchunk.nvim",
 	"akinsho/toggleterm.nvim",
+	"hedyhli/outline.nvim",
 
 	{
 		"williamboman/mason.nvim",
