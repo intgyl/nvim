@@ -16,6 +16,7 @@ require("plugins.lualine")
 require("plugins/nvim-tree")
 require("plugins/lsp")
 require("plugins/nvim-cmp")
+require("plugins/treesitter")
 -- require("plugins/comment")
 require("plugins/autopairs")
 -- require("plugins/bufferline")
@@ -39,11 +40,13 @@ require("plugins/cscope_maps")
 -- require("plugins/hlslens")
 require("plugins/outline")
 
+if vim.g.current_filetype ~= "markdown" then
+	-- require("plugins/hlchunk")
+	require("plugins/cool-chunk")
+	require("plugins/indent-blankline")
+end
+
 if not vim.g.is_large_file then
-	require("plugins/treesitter")
 	-- require("plugins/tagbar")
 
-	if vim.g.current_filetype ~= "markdown" then
-		require("plugins/hlchunk")
-	end
 end

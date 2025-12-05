@@ -27,6 +27,8 @@ local plugins = {
 	"shellRaining/hlchunk.nvim",
 	"akinsho/toggleterm.nvim",
 	"hedyhli/outline.nvim",
+	"Mr-LLLLL/cool-chunk.nvim",
+	"lukas-reineke/indent-blankline.nvim",
 
 	{
 		"williamboman/mason.nvim",
