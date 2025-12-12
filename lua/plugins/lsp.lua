@@ -20,6 +20,39 @@ require("mason-lspconfig").setup({
 })
 
 vim.lsp.enable('pyls')
-vim.lsp.enable('clangd')
 vim.lsp.enable('lua_ls')
 vim.lsp.enable('jdtls')
+
+vim.lsp.config.clangd = {
+	cmd = {
+		'clangd',
+		'--clang-tidy',
+		'--background-index',
+		'--offset-encoding=utf-8',
+
+		"--completion-style=detailed",
+		"--header-insertion=never",
+		"--header-insertion-decorators=0",
+		"--cross-file-rename",
+		"--fallback-style=llvm",
+	},
+
+	root_markers = {
+		"compile_commands.json",
+		"compile_flags.txt",
+		"configure.ac", -- AutoTools
+		"Makefile",
+		"configure.ac",
+		"configure.in",
+		"config.h.in",
+		"meson.build",
+		"meson_options.txt",
+		"build.ninja",
+		".git",
+	},
+
+	capabilities = {
+		offsetEncoding = { "utf-8" },
+	},
+
+}
