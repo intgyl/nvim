@@ -6,10 +6,14 @@ require('lualine').setup({
 
 		lualine_a = {
 			{
+				'filesize',
+			},
+
+			{
 				'searchcount',
 				maxcount = 999,
 				timeout = 500,
-			}
-		}
+			},
+		},
 	}
 })
