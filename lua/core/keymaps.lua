@@ -18,7 +18,7 @@ keymap.set("n", "t16", ":%!xxd<CR>")
 -- nvim-tree
 keymap.set("n", "<F3>", ":NvimTreeToggle<CR>", { silent = true, noremap = true })
 
-keymap.set("n", "q", ":q<ENTER>")
+-- keymap.set("n", "q", ":q<ENTER>")
 keymap.set("n", "Q", ":q<ENTER>")
 keymap.set("n", "wq", ":wq<ENTER>")
 keymap.set("n", "<space>", "$")

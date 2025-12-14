@@ -36,24 +36,67 @@ vim.api.nvim_create_autocmd("VimEnter", {
 	end,
 })
 
-vim.api.nvim_create_autocmd("BufEnter", {
-	callback = function()
-		local function count_normal_windows()
-			local count = 0
-			for _, win in ipairs(vim.api.nvim_list_wins()) do
-				local config = vim.api.nvim_win_get_config(win)
-				if config.relative == "" then -- Non-floating windows
-					count = count + 1
-				end
-			end
-			return count
-		end
+vim.keymap.set("n", "q", function()
+	local normal_win_count = 0
+	local outline_open = false
 
-		if vim.bo.filetype == "Outline" and count_normal_windows() == 1 then
-			vim.cmd "q"
+	for _, win in ipairs(vim.api.nvim_list_wins()) do
+		local buf = vim.api.nvim_win_get_buf(win)
+		local bt = vim.bo[buf].buftype
+		local ft = vim.bo[buf].filetype
+
+		if ft == "Outline" then
+			outline_open = true
+		elseif bt == "" then
+			normal_win_count = normal_win_count + 1
 		end
-	end,
-})
+	end
+
+	if normal_win_count == 1 and outline_open then
+		pcall(vim.cmd, "OutlineClose")
+	end
+
+	vim.cmd("q")
+end, { desc = "Quit buffer (close outline first if last file)" })
+
+_G.safe_quit = function()
+	local normal_win_count = 0
+	local outline_open = false
+
+	desc = "Quit buffer (close outline first if last file)"
+	for _, win in ipairs(vim.api.nvim_list_wins()) do
+		local buf = vim.api.nvim_win_get_buf(win)
+		local bt = vim.bo[buf].buftype
+		local ft = vim.bo[buf].filetype
+
+		if ft:lower() == "outline" then
+			outline_open = true
+		elseif bt == "" then
+			normal_win_count = normal_win_count + 1
+		end
+	end
+
+	if normal_win_count == 1 and outline_open then
+		pcall(vim.cmd, "OutlineClose")
+	end
+
+	vim.cmd("q")
+end
+
+vim.keymap.set("c", "<CR>", function()
+	local cmd = vim.fn.getcmdline()
+	local cmdtype = vim.fn.getcmdtype()
+
+	if cmdtype == ":" then
+		if cmd == "q" then
+			return "<C-c>:lua safe_quit(false)<CR>"
+		elseif cmd == "q!" then
+			return "<C-c>:lua safe_quit(true)<CR>"
+		end
+	end
+
+	return "<CR>"
+end, { expr = true })
 
 -- Toggle Outline: F2
 vim.keymap.set("n", "<F2>", function()
