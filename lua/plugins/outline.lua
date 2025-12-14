@@ -36,7 +36,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
 	end,
 })
 
-vim.keymap.set("n", "q", function()
+local function outline_exit(cmd)
 	local normal_win_count = 0
 	local outline_open = false
 
@@ -56,14 +56,22 @@ vim.keymap.set("n", "q", function()
 		pcall(vim.cmd, "OutlineClose")
 	end
 
-	vim.cmd("q")
-end, { desc = "Quit buffer (close outline first if last file)" })
+	if cmd == "q" then
+		vim.cmd("q")
 
-_G.safe_quit = function()
+	elseif cmd == "wq" then
+		vim.cmd("wq")
+	end
+end
+
+vim.keymap.set("n", "q", function() outline_exit("q") end, { desc = "Quit buffer (close outline first if last file)" })
+vim.keymap.set("n", "wq", function() outline_exit("wq") end, { desc = "Save and quit buffer (close outline first if last file)" })
+
+
+_G.outline_safe_quit = function(cmd)
 	local normal_win_count = 0
 	local outline_open = false
 
-	desc = "Quit buffer (close outline first if last file)"
 	for _, win in ipairs(vim.api.nvim_list_wins()) do
 		local buf = vim.api.nvim_win_get_buf(win)
 		local bt = vim.bo[buf].buftype
@@ -80,7 +88,19 @@ _G.safe_quit = function()
 		pcall(vim.cmd, "OutlineClose")
 	end
 
-	vim.cmd("q")
+	if cmd == "q" then
+		vim.cmd("q")
+
+	elseif cmd == "q!" then
+		vim.cmd("q!")
+
+	elseif cmd == "wq" then
+		vim.cmd("wq")
+
+	elseif cmd == "wq!" then
+		vim.cmd("wq!")
+	end
+
 end
 
 vim.keymap.set("c", "<CR>", function()
@@ -89,9 +109,16 @@ vim.keymap.set("c", "<CR>", function()
 
 	if cmdtype == ":" then
 		if cmd == "q" then
-			return "<C-c>:lua safe_quit(false)<CR>"
+			return "<C-c>:lua outline_safe_quit('q')<CR>"
+
 		elseif cmd == "q!" then
-			return "<C-c>:lua safe_quit(true)<CR>"
+			return "<C-c>:lua outline_safe_quit('q!')<CR>"
+
+		elseif cmd == "wq" then
+			return "<C-c>:lua outline_safe_quit('wq')<CR>"
+
+		elseif cmd == "wq!" then
+			return "<C-c>:lua outline_safe_quit('wq!')<CR>"
 		end
 	end
 
