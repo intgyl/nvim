@@ -1,6 +1,6 @@
 local highlightLines = {
-	"RainbowRed",
 	"RainbowYellow",
+	"RainbowRed",
 	"RainbowBlue",
 	"RainbowOrange",
 	"RainbowGreen",
@@ -9,8 +9,8 @@ local highlightLines = {
 
 }
 local highlightDimLines = {
-	"RainbowRed",
 	"RainbowYellow",
+	"RainbowRed",
 	"RainbowBlue",
 	"RainbowOrange",
 	"RainbowGreen",
@@ -21,8 +21,8 @@ local highlightDimLines = {
 local hooks = require 'ibl.hooks'
 
 hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
-	vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#6f3f3f" })
 	vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#7a7345" })
+	vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#6f3f3f" })
 	vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#5f7358" })
 	vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#456f73" })
 	vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#45637a" })
