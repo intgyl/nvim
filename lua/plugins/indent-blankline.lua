@@ -30,8 +30,6 @@ hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
 	vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#6f3f3f" })
 end)
 
-vim.g.rainbow_delimiters = { highlight = highlightLines }
-
 require('ibl').setup ({
 	indent = {
 		highlight = highlightDimLines,
