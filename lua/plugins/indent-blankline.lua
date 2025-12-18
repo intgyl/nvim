@@ -35,7 +35,7 @@ vim.g.rainbow_delimiters = { highlight = highlightLines }
 require('ibl').setup ({
 	indent = {
 		highlight = highlightDimLines,
-		char = '┊',
+		char = '╎',
 		tab_char = '┊',
 	},
 	scope = {
