@@ -41,6 +41,9 @@ require('ibl').setup ({
 	scope = {
 		highlight = highlightLines,
 		char = '▏',
+
+		show_start = true,
+		show_end = false,
 	}
 })
 
