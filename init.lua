@@ -41,7 +41,7 @@ require("plugins/outline")
 
 if vim.g.current_filetype ~= "markdown" then
 	-- require("plugins/hlchunk")
-	require("plugins/cool-chunk")
+	-- require("plugins/cool-chunk")
 	require("plugins/indent-blankline")
 end
 
