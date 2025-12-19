@@ -47,3 +47,8 @@ vim.api.nvim_create_autocmd({"BufNewFile", "BufRead"}, {
 		vim.opt_local.filetype = "python"
 	end,
 })
+
+vim.api.nvim_create_autocmd("FileType", {
+	command = "set formatoptions-=o",
+})
+
