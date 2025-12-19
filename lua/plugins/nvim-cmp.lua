@@ -30,64 +30,63 @@ local kind_icons = {
 local t = function(str)
 	return vim.api.nvim_replace_termcodes(str, true, true, true)
 end
+
 local cmp = require('cmp')
 local luasnip = require("luasnip")
 
 cmp.setup{
 	snippet = {
 		expand = function(args)
-			-- vim.fn["UltiSnips#Anon"](args.body)
-			require("luasnip").lsp_expand(args.body)
+			luasnip.lsp_expand(args.body)
 		end,
 	},
+
 	window = {
 		completion = cmp.config.window.bordered(),
 		documentation = cmp.config.window.bordered(),
 	},
+
+	formatting = {
+		fields = { "kind", "abbr", "menu" },
+		format = function(entry, vim_item)
+			-- Kind icons
+			vim_item.kind = string.format("%s", kind_icons[vim_item.kind])
+			vim_item.menu = ({
+				nvim_lsp = "[LSP]",
+				buffer = "[Buffer]",
+				path = "[Path]",
+				luasnip = "[Snip]",
+				copilot = '[]',
+				spell = "[Spell]",
+				pandoc_references = "[ref]",
+				tags = "[Tag]",
+				treesitter = "[TS]",
+				calc = "[Calc]",
+				latex_symbols = "[Tex]",
+				emoji = "[Emoji]",
+			})[entry.source.name]
+			return vim_item
+		end,
+	},
+
+	sources = {
+		{ name = 'nvim_lsp' },
+		{ name = 'luasnip' },
+		{ name = 'buffer' },
+		{ name = 'path' },
+		{ name = 'otter' }, -- for code chunks in quarto
+		{ name = 'path' },
+		{ name = 'nvim_lsp_signature_help' },
+		{ name = 'pandoc_references' },
+		{ name = 'spell' },
+		{ name = 'treesitter' },
+		{ name = 'calc' },
+		{ name = 'latex_symbols' },
+		{ name = 'emoji' },
+	},
+
 	mapping = {
-
-		-- tab 键选择
-		--[[
-		[                 ["<Tab>"] = cmp.mapping({
-		[                         c = function()
-		[                                 if cmp.visible() then
-		[                                         cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-		[                                 else
-		[                                         cmp.complete()
-		[                                 end
-		[                         end,
-		[                         i = function(fallback)
-		[                                 if cmp.visible() then
-		[                                         cmp.select_next_item({ behavior = cmp.SelectBehavior.Insert })
-		[                                 elseif luasnip.expand_or_jumpable() then
-		[                                         luasnip.expand_or_jump()
-		[                                 else
-		[                                         fallback()
-		[                                 end
-		[                         end
-		[                 }),
-		[                 ["<S-Tab>"] = cmp.mapping({
-		[                         c = function()
-		[                                 if cmp.visible() then
-		[                                         cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
-		[                                 else
-		[                                         cmp.complete()
-		[                                 end
-		[                         end,
-		[                         i = function(fallback)
-		[                                 if cmp.visible() then
-		[                                         cmp.select_prev_item({ behavior = cmp.SelectBehavior.Insert })
-		[                                 elseif luasnip.jumpable(-1) then
-		[                                         luasnip.jump(-1)
-		[                                 else
-		[                                         fallback()
-		[                                 end
-		[ 
-		[                         end
-		[                 }),
-		]]
-
-		-- Tab：仅在 snippet 中跳转，不用于补全选择
+		-- 跳转下一个 snippet 占位符
 		["<c-l>"] = function(fallback)
 			if luasnip.expand_or_jumpable() then
 				luasnip.expand_or_jump()
@@ -96,7 +95,7 @@ cmp.setup{
 			end
 		end,
 
-		-- Shift-Tab：跳转回上一个 snippet 占位符
+		-- 跳转回上一个 snippet 占位符
 		["<c-h>"] = function(fallback)
 			if luasnip.jumpable(-1) then
 				luasnip.jump(-1)
@@ -144,7 +143,6 @@ cmp.setup{
 		--['<C-e>'] = cmp.mapping(cmp.mapping.complete(), {'i', 'c'}),
 		--['<C-e>'] = cmp.mapping({ i = cmp.mapping.close(), c = cmp.mapping.close() }),
 
-
 		-- enter自动选择第一个
 		['<CR>'] = cmp.mapping({
 			i = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Insert, select = true }),
@@ -157,29 +155,6 @@ cmp.setup{
 			end
 		}),
 	},
-
-	formatting = {
-		fields = { "kind", "abbr", "menu" },
-		format = function(entry, vim_item)
-			-- Kind icons
-			vim_item.kind = string.format("%s", kind_icons[vim_item.kind])
-			vim_item.menu = ({
-				nvim_lsp = "[LSP]",
-				-- ultisnips = "[Snippet]",
-				buffer = "[Buffer]",
-				path = "[Path]",
-			})[entry.source.name]
-			return vim_item
-		end,
-	},
-
-	sources = cmp.config.sources({
-		{ name = 'nvim_lsp' },
-		-- { name = 'ultisnips' },
-	}, {
-		-- { name = 'buffer' },
-		-- { name = 'path' },
-	})
 }
 
 -- Set configuration for specific filetype.
