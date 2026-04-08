@@ -15,8 +15,9 @@ require('avante').setup ({
 			reverse_switch_windows = "<C-k>",
 			remove_file = "d",
 			add_file = "@",
-			close = { "<Esc>", "q" },
-			close_from_input = nil, -- e.g., { normal = "<Esc>", insert = "<C-d>" }
+			-- 取消 ESC 关闭窗口，只保留 q
+			close = "q",
+			close_from_input = nil,
 		},
 	},
 	acp_providers = {
