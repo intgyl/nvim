@@ -64,6 +64,21 @@ local plugins = {
 		dependencies = { 'nvim-lua/plenary.nvim' },
 	},
 
+	{
+		"yetone/avante.nvim",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"MunifTanjim/nui.nvim",
+			--- 以下依赖项是可选的，
+			"echasnovski/mini.pick", -- 用于文件选择器提供者 mini.pick
+			"nvim-telescope/telescope.nvim", -- 用于文件选择器提供者 telescope
+			"hrsh7th/nvim-cmp", -- avante 命令和提及的自动完成
+			"ibhagwan/fzf-lua", -- 用于文件选择器提供者 fzf
+			"nvim-tree/nvim-web-devicons", -- 或 echasnovski/mini.icons
+			"HakonHarnes/img-clip.nvim",
+		},
+	},
+
 --	"github/copilot.vim",
 --	{
 --		"CopilotC-Nvim/CopilotChat.nvim",
@@ -73,10 +88,12 @@ local plugins = {
 --		},
 --	},
 
-	"Exafunction/windsurf.nvim",
-	dependencies = {
-		"nvim-lua/plenary.nvim",
-		"hrsh7th/nvim-cmp",
+	{
+		"Exafunction/windsurf.nvim",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"hrsh7th/nvim-cmp",
+		},
 	},
 
 	"dhananjaylatkar/cscope_maps.nvim"

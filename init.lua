@@ -38,6 +38,8 @@ require("plugins/cscope_maps")
 -- require("plugins/notify")
 -- require("plugins/hlslens")
 require("plugins/outline")
+require("plugins/avante")
+require("plugins/img-clip")
 
 if vim.g.current_filetype ~= "markdown" then
 	-- require("plugins/hlchunk")
