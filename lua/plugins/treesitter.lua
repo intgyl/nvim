@@ -1,13 +1,17 @@
-require'nvim-treesitter.configs'.setup {
+require("nvim-treesitter").setup({
 	-- 添加不同语言
-	ensure_installed = { "vim", "vimdoc", "bash", "c", "cpp", "java", "javascript", "json", "lua", "python", "typescript", "tsx", "css", "rust", "markdown", "markdown_inline", "verilog"}, -- one of "all" or a list of languages
+	ensure_installed = { "vim", "vimdoc", "bash", "c", "cpp", "java", "javascript", "json", "lua", "python", "typescript", "tsx", "css", "rust", "markdown", "markdown_inline", "verilog" },
 
-	highlight = { enable = true },
+	highlight = {
+		enable = true,
+		-- 禁用 markdown 的 treesitter 高亮，避免与 render-markdown 冲突
+		disable = { "markdown" },
+	},
 	indent = {
 		enable = true,
 		disable = { "c", "cpp", "verilog" },
 	},
-}
+})
 
 -- 设置高亮样式：为 TODO 注释设置橙色粗体
 vim.api.nvim_set_hl(0, "@comment.todo", { fg = "#ff9e64", bold = true }) -- 橙色，粗体
