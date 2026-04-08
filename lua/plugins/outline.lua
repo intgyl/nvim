@@ -20,13 +20,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
 		end
 
 		-- 检查 Treesitter 是否支持该 filetype
-		local ok, parsers = pcall(require, "nvim-treesitter.parsers")
-		if not ok then
-			return    -- Treesitter 未加载
-		end
-
-		local configs = parsers.get_parser_configs()
-		if not configs[ft] then
+		local has_lang, _ = pcall(vim.treesitter.language.inspect, ft)
+		if not has_lang then
 			return    -- Treesitter 没有该语言的 parser
 		end
 
@@ -141,4 +136,3 @@ vim.keymap.set("n", "<F2>", function()
 	-- 否则打开 Outline
 	vim.cmd("Outline!")
 end, {desc = "Toggle Outline" })
-
