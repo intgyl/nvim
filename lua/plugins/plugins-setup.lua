@@ -54,10 +54,12 @@ local plugins = {
 	"folke/noice.nvim",
 	"rcarriga/nvim-notify",
 	"kevinhwang91/nvim-hlslens",
+	"karb94/neoscroll.nvim",
 
 	"akinsho/bufferline.nvim", -- buffer分割线
 	"lewis6991/gitsigns.nvim", -- 左则git提示
 	"MeanderingProgrammer/render-markdown.nvim",
+	"sindrets/diffview.nvim",
 
 	{
 		'nvim-telescope/telescope.nvim',

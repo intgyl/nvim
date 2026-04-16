@@ -47,7 +47,7 @@ require('ibl').setup ({
 
 vim.g.plugin_visible = true
 
-vim.keymap.set("n", "<F7>", function()
+vim.keymap.set("n", "<F10>", function()
 	local ok, gitsigns = pcall(require, "gitsigns")
 	if not ok then
 		vim.notify("gitsigns.nvim is not loaded", vim.log.levels.ERROR)
