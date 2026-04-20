@@ -40,6 +40,7 @@ require("plugins/cscope_maps")
 require("plugins/outline")
 require("plugins/avante")
 require("plugins/img-clip")
+require("plugins/diffview")
 
 if vim.g.current_filetype ~= "markdown" then
 	-- require("plugins/hlchunk")
