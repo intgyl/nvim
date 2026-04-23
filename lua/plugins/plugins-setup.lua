@@ -81,6 +81,14 @@ local plugins = {
 		},
 	},
 
+	{
+		"milanglacier/minuet-ai.nvim",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"hrsh7th/nvim-cmp",
+		},
+	},
+
 --	"github/copilot.vim",
 --	{
 --		"CopilotC-Nvim/CopilotChat.nvim",
