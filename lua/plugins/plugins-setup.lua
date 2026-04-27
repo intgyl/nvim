@@ -20,6 +20,7 @@ local plugins = {
 	"nvim-lualine/lualine.nvim",  -- 状态栏
 	"nvim-tree/nvim-tree.lua",  -- 文档树
 	"nvim-tree/nvim-web-devicons", -- 文档树图标
+	"mikavilpas/yazi.nvim",
 
 	"nvim-treesitter/nvim-treesitter", -- 语法高亮
 	"HiPhish/rainbow-delimiters.nvim", -- 彩色括号
