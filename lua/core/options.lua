@@ -14,6 +14,7 @@ opt.cursorline = true       -- 光标行
 opt.wrap = true             -- 自动换行
 opt.swapfile = false
 opt.laststatus = 3
+opt.scrolloff = 10
 
 vim.g.c_syntax_for_h = 1
 
