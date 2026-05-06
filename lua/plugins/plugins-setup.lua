@@ -60,6 +60,7 @@ local plugins = {
 	"akinsho/bufferline.nvim", -- buffer分割线
 	"lewis6991/gitsigns.nvim", -- 左则git提示
 	"MeanderingProgrammer/render-markdown.nvim",
+	"3rd/image.nvim",
 	"sindrets/diffview.nvim",
 
 	{
