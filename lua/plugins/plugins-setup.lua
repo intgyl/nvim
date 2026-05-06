@@ -111,5 +111,11 @@ local plugins = {
 	"dhananjaylatkar/cscope_maps.nvim"
 
 }
-local opts = {} -- 注意要定义这个变量
+
+local opts = {
+	rocks = {
+		hererocks = true,
+	},
+}
+
 require("lazy").setup(plugins, opts)
