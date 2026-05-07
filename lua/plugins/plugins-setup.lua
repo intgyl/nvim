@@ -16,6 +16,10 @@ local plugins = {
 	"folke/tokyonight.nvim", -- 主题
 	-- "navarasu/onedark.nvim",
 	-- "vim/colorschemes", -- 主题
+	{
+		"folke/todo-comments.nvim",
+		dependencies = { "nvim-lua/plenary.nvim" },
+	},
 
 	"nvim-lualine/lualine.nvim",  -- 状态栏
 	"nvim-tree/nvim-tree.lua",  -- 文档树
