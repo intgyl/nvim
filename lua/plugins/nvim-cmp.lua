@@ -213,7 +213,7 @@ vim.keymap.set('n', 'gr', vim.lsp.buf.references, bufopts)
 -- vim.keymap.set('n', '<C-t>', '<C-o>', bufopts)
 -- vim.keymap.set({"i"}, "<C-K>", function() luasnip.expand() end, {silent = true})
 --
-vim.keymap.set("n", "<C-k>", function()
+vim.keymap.set("n", "<C-]>", function()
 	-- 在下一次光标移动或进入新 buffer 时居中一次
 	vim.lsp.buf.definition()
 	local id = vim.api.nvim_create_autocmd({"CursorMoved", "BufWinEnter"}, {

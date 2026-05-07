@@ -10,8 +10,8 @@ keymap.set("v", "K", ":m '<-2<CR>gv=gv")
 
 -- ---------- 正常模式 ---------- ---
 -- 切换buffer
-keymap.set("n", "<C-L>", ":bnext<CR>")
-keymap.set("n", "<C-H>", ":bprevious<CR>")
+keymap.set("n", "L", ":bnext<CR>")
+keymap.set("n", "H", ":bprevious<CR>")
 keymap.set("n", "t16", ":%!xxd<CR>")
 
 -- ---------- 插件 ---------- ---
@@ -27,7 +27,7 @@ keymap.set("n", "f", "0")
 keymap.set("n", "s", "%")
 keymap.set("n", ";", "*")
 -- keymap.set("n", "e", "#")
--- keymap.set("n", "<C-k>", "<C-w>k")
+keymap.set("n", "<C-k>", "<C-w>k")
 keymap.set("n", "<C-j>", "<C-w>j")
 keymap.set("n", "<C-h>", "<C-w>h")
 keymap.set("n", "<C-l>", "<C-w>l")

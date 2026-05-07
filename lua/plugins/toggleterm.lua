@@ -23,6 +23,6 @@ require("toggleterm").setup({
 
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", {noremap = true, silent = true})
 -- vim.api.nvim_set_keymap("t", "<C-l>", "<Cmd> wincmd l<CR>", {noremap = true, silent = true})
-vim.api.nvim_set_keymap("t", "<C-h>", "<Cmd> wincmd h<CR>", {noremap = true, silent = true})
-vim.api.nvim_set_keymap("t", "<C-j>", "<Cmd> wincmd j<CR>", {noremap = true, silent = true})
-vim.api.nvim_set_keymap("t", "<C-k>", "<Cmd> wincmd k<CR>", {noremap = true, silent = true})
+-- vim.api.nvim_set_keymap("t", "<C-h>", "<Cmd> wincmd h<CR>", {noremap = true, silent = true})
+-- vim.api.nvim_set_keymap("t", "<C-j>", "<Cmd> wincmd j<CR>", {noremap = true, silent = true})
+-- vim.api.nvim_set_keymap("t", "<C-k>", "<Cmd> wincmd k<CR>", {noremap = true, silent = true})
