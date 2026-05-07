@@ -1,6 +1,6 @@
 require("nvim-treesitter").setup({
 	-- 添加不同语言
-	ensure_installed = { "vim", "vimdoc", "bash", "c", "cpp", "java", "javascript", "json", "lua", "python", "typescript", "tsx", "css", "rust", "markdown", "markdown_inline", "verilog", "comment", "diff", "toml", "yaml", "html", "printf", "regex" },
+	ensure_installed = { "vim", "vimdoc", "bash", "c", "cpp", "java", "javascript", "json", "lua", "python", "typescript", "tsx", "css", "rust", "markdown", "markdown_inline", "verilog", "comment", "diff", "toml", "yaml", "html", "printf", "regex", "latex" },
 
 	highlight = {
 		enable = true,

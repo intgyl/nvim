@@ -40,7 +40,6 @@ require("render-markdown").setup({
 	-- 引用块样式配置
 	quote = {
 		enabled = true,
-		sign = false,
 		icon = "▋",
 		repeat_linebreak = false,
 		highlight = "RenderMarkdownQuote",
@@ -74,12 +73,6 @@ require("render-markdown").setup({
 		highlight = "RenderMarkdownDash",
 	},
 
-	-- 行内代码样式配置
-	inline_code = {
-		enabled = true,
-		style = "full",
-		highlight = "RenderMarkdownCodeInline",
-	},
 
 	-- 链接样式配置
 	link = {
@@ -104,14 +97,12 @@ require("render-markdown").setup({
 		},
 		head = "RenderMarkdownTableHead",
 		row = "RenderMarkdownTableRow",
-		filler = "RenderMarkdownTableFill",
 	},
 
 	-- LaTeX 数学公式样式配置
 	latex = {
 		enabled = true,
 		render_modes = true,
-		symbol = "󰿈",
 		highlight = "RenderMarkdownMath",
 		top_pad = 0,
 		bottom_pad = 0,
