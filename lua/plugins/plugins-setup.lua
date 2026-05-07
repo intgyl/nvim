@@ -26,6 +26,7 @@ local plugins = {
 	"nvim-tree/nvim-web-devicons", -- 文档树图标
 	"mikavilpas/yazi.nvim",
 	"catgoose/nvim-colorizer.lua",
+	'nvim-mini/mini.trailspace',
 
 	"nvim-treesitter/nvim-treesitter", -- 语法高亮
 	"HiPhish/rainbow-delimiters.nvim", -- 彩色括号

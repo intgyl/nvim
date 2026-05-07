@@ -51,16 +51,4 @@ vim.cmd[[hi Normal guibg=NONE ctermbg=NONE]]
 -- vim.cmd[[highlight LineNr guibg=NONE ctermbg=NONE]]
 
 
--- 高亮显示行尾空格
-vim.cmd([[highlight ExtraWhitespace ctermbg=lightred guibg=#FF7777]])
-
-local function highlight_trailing_whitespace()
-	vim.cmd([[match ExtraWhitespace /\s\+$/]])
-end
-
--- 自动在进入 buffer 和离开插入模式时设置高亮
-vim.api.nvim_create_autocmd({ "BufEnter", "InsertLeave" }, {
-	callback = highlight_trailing_whitespace,
-})
-
 vim.api.nvim_set_hl(0, 'MatchParen', { fg = '#ff79c6', bg = 'NONE', bold = true })

@@ -46,6 +46,7 @@ require("plugins/avante")
 require("plugins/img-clip")
 require("plugins/diffview")
 require("plugins/nvim-colorizer")
+require("plugins/mini-trailspace")
 
 if vim.g.current_filetype ~= "markdown" then
 	-- require("plugins/hlchunk")
