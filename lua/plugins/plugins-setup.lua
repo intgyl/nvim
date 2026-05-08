@@ -14,8 +14,6 @@ vim.opt.rtp:prepend(lazypath)
 
 local plugins = {
 	"folke/tokyonight.nvim", -- 主题
-	-- "navarasu/onedark.nvim",
-	-- "vim/colorschemes", -- 主题
 	{
 		"folke/todo-comments.nvim",
 		dependencies = { "nvim-lua/plenary.nvim" },
@@ -31,10 +29,10 @@ local plugins = {
 	"nvim-treesitter/nvim-treesitter", -- 语法高亮
 	"HiPhish/rainbow-delimiters.nvim", -- 彩色括号
 	'preservim/tagbar',
-	"shellRaining/hlchunk.nvim",
+	-- "shellRaining/hlchunk.nvim",
 	"akinsho/toggleterm.nvim",
 	"hedyhli/outline.nvim",
-	"Mr-LLLLL/cool-chunk.nvim",
+	-- "Mr-LLLLL/cool-chunk.nvim",
 	"lukas-reineke/indent-blankline.nvim",
 
 	{
@@ -54,16 +52,15 @@ local plugins = {
 
 	"L3MON4D3/LuaSnip",
 	"rafamadriz/friendly-snippets",
-	"stevearc/oil.nvim",
 
 	"preservim/nerdcommenter",
 	"windwp/nvim-autopairs", -- 自动补全括号
-	"folke/noice.nvim",
-	"rcarriga/nvim-notify",
-	"kevinhwang91/nvim-hlslens",
-	"karb94/neoscroll.nvim",
+	-- "folke/noice.nvim",
+	-- "rcarriga/nvim-notify",
+	-- "kevinhwang91/nvim-hlslens",
+	-- "karb94/neoscroll.nvim",
 
-	"akinsho/bufferline.nvim", -- buffer分割线
+	-- "akinsho/bufferline.nvim", -- buffer分割线
 	"lewis6991/gitsigns.nvim", -- 左则git提示
 	"MeanderingProgrammer/render-markdown.nvim",
 	"3rd/image.nvim",
