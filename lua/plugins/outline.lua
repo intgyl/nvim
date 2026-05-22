@@ -20,7 +20,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
 		end
 
 		-- 检查 Treesitter 是否支持该 filetype
-		local has_lang, _ = pcall(vim.treesitter.language.inspect, ft)
+		-- 先用 get_lang 将 filetype 映射到 parser 名称（如 dts → devicetree）
+		local lang = vim.treesitter.language.get_lang(ft)
+		local has_lang = lang and pcall(vim.treesitter.language.inspect, lang)
 		if not has_lang then
 			return    -- Treesitter 没有该语言的 parser
 		end
