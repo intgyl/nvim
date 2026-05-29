@@ -75,7 +75,6 @@ cmp.setup{
 		{ name = 'buffer' },
 		{ name = 'path' },
 		{ name = 'otter' }, -- for code chunks in quarto
-		{ name = 'path' },
 		{ name = 'nvim_lsp_signature_help' },
 		{ name = 'pandoc_references' },
 		{ name = 'spell' },
