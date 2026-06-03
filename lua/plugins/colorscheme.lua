@@ -40,6 +40,9 @@ require("tokyonight").setup({
 		highlights.NvimTreeNormal = { bg = "NONE" }
 		highlights.NvimTreeNormalNC = { bg = "NONE" }
 		highlights.NvimTreeEndOfBuffer = { bg = "NONE" }
+
+		-- 窗口分割线高亮
+		highlights.WinSeparator = { fg = "#565f89", bg = "NONE" }
 	end,
 })
 
