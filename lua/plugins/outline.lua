@@ -13,6 +13,11 @@ vim.api.nvim_create_autocmd("VimEnter", {
 	callback = function(args)
 		local ft = vim.bo[args.buf].filetype
 
+		-- 跳过 diff 模式
+		if vim.o.diff then
+			return
+		end
+
 		-- 跳过不需要的 filetype
 		local ignore = { "NvimTree", "TelescopePrompt", "help", "lazy", "terminal", "Outline" }
 		if vim.tbl_contains(ignore, ft) then
