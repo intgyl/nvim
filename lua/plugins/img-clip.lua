@@ -24,13 +24,3 @@ require('img-clip').setup({
 		},
 	},
 })
-
--- 粘贴图像快捷键
-vim.keymap.set("n", "<leader>p", function()
-	require("img-clip").paste_image()
-end, { desc = "Paste image from clipboard" })
-
-vim.keymap.set("i", "<C-v>", function()
-	require("img-clip").paste_image()
-end, { desc = "Paste image from clipboard" })
-
