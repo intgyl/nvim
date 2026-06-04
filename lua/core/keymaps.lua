@@ -17,8 +17,6 @@ keymap.set("n", "t16", ":%!xxd<CR>")
 -- ---------- 插件 ---------- ---
 -- nvim-tree
 keymap.set("n", "<F3>", ":NvimTreeToggle<CR>", { silent = true, noremap = true })
-keymap.set("n", "<F8>", ":OutlineClose<CR>:AvanteToggle<CR>", { silent = true, noremap = true })
-keymap.set("n", "<F9>", ":AvanteStop<CR>", { silent = true, noremap = true })
 -- keymap.set("n", "q", ":q<ENTER>")
 keymap.set("n", "Q", ":q<ENTER>")
 keymap.set("n", "wq", ":wq<ENTER>")
