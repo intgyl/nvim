@@ -35,11 +35,17 @@ require("tokyonight").setup({
 		-- 当前行号
 		-- highlights.CursorLineNr = { fg = colors.fg, bold = true }
 
-
 		-- 取消nvim-tree背景色
 		highlights.NvimTreeNormal = { bg = "NONE" }
 		highlights.NvimTreeNormalNC = { bg = "NONE" }
 		highlights.NvimTreeEndOfBuffer = { bg = "NONE" }
+
+		-- 取消 diffview 文件面板状态/增删数字的背景色
+		highlights.DiffviewStatusAdded = { fg = colors.green, bg = "NONE" }
+		highlights.DiffviewStatusModified = { fg = colors.yellow, bg = "NONE" }
+		highlights.DiffviewStatusDeleted = { fg = colors.red, bg = "NONE" }
+		highlights.DiffviewFilePanelInsertions = { fg = colors.green, bg = "NONE" }
+		highlights.DiffviewFilePanelDeletions = { fg = colors.red, bg = "NONE" }
 
 		-- 窗口分割线高亮
 		highlights.WinSeparator = { fg = "#565f89", bg = "NONE" }
