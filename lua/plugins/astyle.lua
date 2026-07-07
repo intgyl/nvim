@@ -15,7 +15,8 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 					filepath
 				})
 			else
-				-- C/C++ 使用 astyle
+				-- C/C++ 先用 clang-format，再用 astyle
+				vim.fn.system({ "clang-format", "-i", filepath })
 				vim.fn.system({
 					"astyle",
 					"--style=linux", "-p", "--indent=force-tab=8", "--break-blocks=all",
