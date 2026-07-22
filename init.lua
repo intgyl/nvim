@@ -33,7 +33,6 @@ require("plugins/windsurf")
 require("plugins/astyle")
 require("plugins/markdown")
 require("plugins/markdown-image")
-require("plugins/rainbow")
 require("plugins/cscope_maps")
 -- require("plugins/noice")
 -- require("plugins/notify")
@@ -51,5 +50,6 @@ end
 
 if not vim.g.is_large_file then
 	-- require("plugins/tagbar")
+	require("plugins/rainbow")
 
 end
