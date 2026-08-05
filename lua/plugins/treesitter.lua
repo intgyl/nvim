@@ -1,15 +1,20 @@
-require("nvim-treesitter").setup({
-	-- 添加不同语言
-	ensure_installed = { "vim", "vimdoc", "bash", "c", "cpp", "java", "javascript", "json", "lua", "python", "typescript", "tsx", "css", "rust", "markdown", "markdown_inline", "verilog", "comment", "diff", "toml", "yaml", "html", "printf", "regex", "latex" },
+require("nvim-treesitter").setup()
 
-	highlight = {
-		enable = true,
-		-- 禁用 markdown 的 treesitter 高亮，避免与 render-markdown 冲突
-		disable = { "markdown" },
-	},
-	indent = {
-		enable = true,
-		disable = { "c", "cpp", "verilog" },
-	},
+vim.treesitter.language.register("systemverilog", { "verilog" })
+
+local parsers = {
+	"vim", "vimdoc", "bash", "c", "cpp", "java", "javascript", "json", "lua",
+	"python", "typescript", "tsx", "css", "rust", "markdown", "markdown_inline",
+	"systemverilog", "comment", "diff", "toml", "yaml", "html", "printf", "regex", "latex",
+}
+require("nvim-treesitter").install(parsers)
+
+vim.api.nvim_create_autocmd("FileType", {
+	callback = function(args)
+		if args.match == "markdown" then
+			vim.treesitter.stop(args.buf)
+		else
+			pcall(vim.treesitter.start, args.buf)
+		end
+	end,
 })
-
