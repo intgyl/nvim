@@ -22,6 +22,7 @@ require("mason-lspconfig").setup({
 vim.lsp.enable('pylsp')
 vim.lsp.enable('lua_ls')
 vim.lsp.enable('jdtls')
+vim.lsp.enable('verible')
 
 vim.lsp.config.clangd = {
 	cmd = {
