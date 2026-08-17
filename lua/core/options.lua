@@ -18,8 +18,21 @@ opt.scrolloff = 10
 
 vim.g.c_syntax_for_h = 1
 
+-- 启用原生OSC52剪贴板提供器
+vim.g.clipboard = {
+	name = 'OSC 52',
+	copy = {
+		['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+		['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+	},
+	paste = {
+		['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+		['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+	},
+}
+
 -- 系统剪贴板
--- opt.clipboard:append("unnamedplus")
+opt.clipboard:append("unnamedplus")
 
 -- 默认新窗口右和下
 opt.splitright = true
