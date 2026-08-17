@@ -18,26 +18,32 @@ opt.scrolloff = 10
 
 vim.g.c_syntax_for_h = 1
 
--- 启用原生OSC52剪贴板提供器
-vim.g.clipboard = {
-	name = 'OSC 52',
-	copy = {
-		['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-		['*'] = require('vim.ui.clipboard.osc52').copy('*'),
-	},
-	paste = {
-		['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-		['*'] = require('vim.ui.clipboard.osc52').paste('*'),
-	},
-}
-
--- 系统剪贴板
-opt.clipboard:append("unnamedplus")
-
 -- 默认新窗口右和下
 opt.splitright = true
 opt.splitbelow = true
 opt.updatetime = 500
+
+local is_ssh = os.getenv("SSH_TTY") ~= nil
+
+if not is_ssh then
+	vim.opt.clipboard = "unnamedplus"
+else
+	local augroup = vim.api.nvim_create_augroup("SSH_OSC52_YANK", { clear = true })
+	vim.api.nvim_create_autocmd("TextYankPost", {
+		group = augroup,
+		pattern = "*",
+		callback = function()
+			local evt = vim.v.event
+			if evt.operator == "y" and evt.regname ~= "_" then
+				local text = vim.fn.getreg(evt.regname)
+				local b64 = vim.base64.encode(text)
+				-- OSC52 序列输出到终端
+				io.write(string.format("\027]52;c;%s\027\\", b64))
+				io.flush()
+			end
+		end,
+	})
+end
 
 -- 记录上次退出时的位置
 vim.api.nvim_create_autocmd("BufReadPost", {
