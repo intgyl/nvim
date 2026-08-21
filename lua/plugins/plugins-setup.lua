@@ -55,8 +55,8 @@ local plugins = {
 
 	"preservim/nerdcommenter",
 	"windwp/nvim-autopairs", -- 自动补全括号
-	-- "folke/noice.nvim",
-	-- "rcarriga/nvim-notify",
+	"folke/noice.nvim",
+	"rcarriga/nvim-notify",
 	-- "kevinhwang91/nvim-hlslens",
 	-- "karb94/neoscroll.nvim",
 
