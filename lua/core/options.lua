@@ -26,7 +26,17 @@ opt.updatetime = 500
 local is_ssh = os.getenv("SSH_TTY") ~= nil
 
 if not is_ssh then
-	vim.opt.clipboard = "unnamedplus"
+	local augroup = vim.api.nvim_create_augroup("YANK_TO_CLIPBOARD", { clear = true })
+	vim.api.nvim_create_autocmd("TextYankPost", {
+		group = augroup,
+		pattern = "*",
+		callback = function()
+			local evt = vim.v.event
+			if evt.operator == "y" and evt.regname ~= "_" then
+				vim.fn.setreg("+", vim.fn.getreg(evt.regname), evt.regtype)
+			end
+		end,
+	})
 else
 	local augroup = vim.api.nvim_create_augroup("SSH_OSC52_YANK", { clear = true })
 	vim.api.nvim_create_autocmd("TextYankPost", {
