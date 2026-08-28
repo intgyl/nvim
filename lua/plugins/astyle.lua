@@ -16,11 +16,12 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 				})
 			else
 				-- C/C++ 先用 clang-format，再用 astyle
-				vim.fn.system({ "clang-format", "-i", filepath })
+				local clang_format_style = "file:" .. vim.fn.expand("$HOME") .. "/.clang-format"
+				vim.fn.system({ "clang-format", "-style=" .. clang_format_style, "-i", filepath })
 				vim.fn.system({
 					"astyle",
 					"--style=linux", "-p", "--indent=force-tab=8", "--break-blocks=all",
-					"--indent-switches", "--pad-oper", "--pad-comma", "--pad-header",
+					"indent-switches", "--pad-oper", "--pad-comma", "--pad-header",
 					"--suffix=none", "--align-pointer=name", "--align-reference=name",
 					"--break-one-line-headers", "--attach-return-type",
 					"--attach-return-type-decl",
