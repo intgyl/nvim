@@ -15,18 +15,12 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 					filepath
 				})
 			else
-				-- C/C++ 先用 clang-format，再用 astyle
 				local clang_format_style = "file:" .. vim.fn.expand("$HOME") .. "/.clang-format"
 				vim.fn.system({ "clang-format", "-style=" .. clang_format_style, "-i", filepath })
-				vim.fn.system({
-					"astyle",
-					"--style=linux", "-p", "--indent=force-tab=8", "--break-blocks=all",
-					"--pad-oper", "--pad-comma", "--pad-header",
-					"--suffix=none", "--align-pointer=name", "--align-reference=name",
-					"--break-one-line-headers", "--attach-return-type",
-					"--attach-return-type-decl",
-					filepath
-				})
+				local uncrustify_cfg = vim.fn.expand("$HOME") .. "/.uncrustify.cfg"
+				vim.fn.system({ "uncrustify", "-c", uncrustify_cfg, "--replace", "--no-backup", filepath })
+				vim.fn.system({ "perl", vim.fn.expand("$HOME") .. "/.vim/bin/tools/common/ast_post.pl", filepath })
+				vim.fn.system({ vim.fn.expand("$HOME") .. "/.config/nvim/tools/cstyle.py", filepath })
 			end
 
 			vim.cmd("edit") -- 重新加载格式化后的文件
