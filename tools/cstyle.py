@@ -879,7 +879,7 @@ def collapse_blanks(lines, keep=1):
 
 RE_PP_INDENTED = re.compile(r"^\s+#\s*(?:if|ifdef|ifndef|endif|else|elif)\b")
 RE_PP_COND_CODE = re.compile(r"^(\s*)#\s*(ifdef|ifndef)\s+(\S+)\s+(\S.*)$")
-RE_PP_IF_CODE = re.compile(r"^(\s*)#\s*if\s+((?:defined\s*\(\s*\w+\s*\)|\w+))\s+(\S.*)$")
+RE_PP_IF_CODE = re.compile(r"^(\s*)#\s*if\s+((?:defined\s*\(\s*\w+\s*\)|(?!defined\b)\w+))\s+(\S.*)$")
 RE_COND_OP = re.compile(r"^(?:\|\||&&|==|!=|<=|>=|[|&)])")
 
 
@@ -1866,6 +1866,7 @@ def rebalance_tiny_tails(lines):
 			not stripped
 			or len(stripped) > TINY_TAIL
 			or not out[i].startswith((" ", "\t"))
+			or out[i].rstrip().endswith("\\")
 			or RE_TINY_SKIP.match(out[i])
 			or stripped.startswith(("/*", "*", "//", "#"))
 		):
@@ -1881,6 +1882,7 @@ def rebalance_tiny_tails(lines):
 				or p.startswith("#")
 				or p.startswith(("/*", "*"))
 				or p.endswith((";", "{", "}"))
+				or p.endswith("\\")
 				or p.startswith("case ")
 				or p.startswith("default:")
 				or re.match(r"(?:if|while|for|switch)\s*\(", p)
