@@ -1043,7 +1043,7 @@ def pre_transform(lines, def_mode):
 				line = f"{m.group(1)}/* {title} */"
 		else:
 			m = RE_BANNER_TAIL.match(line)
-			if m:
+			if m and not re.match(r"^[*= -]*$", m.group(2)):
 				line = f"{m.group(1)}/* {m.group(2)} */"
 
 		# 长星号填充: /* Title **********/ -> /* Title */
@@ -1123,14 +1123,23 @@ def pre_transform(lines, def_mode):
 							out.append("")
 						out.append(f"{ind}/* {c} */")
 					line = ind + code
+				else:
+					line = f"{ind}{code} /* {c} */"
 
 		# 单行 /*foo*/ 间距规范化（纯装饰行不动）
 		m = RE_ONELINE.match(line)
-		if m and not re.match(r"^[*= -]*$", m.group(2)):
-			c = re.sub(r"^\*\s+", "", m.group(2))
+		if m and not re.match(r"^[*= \-#/]*$", m.group(2)):
+			c = m.group(2)
+			c = re.sub(r"^[*=\-#/]{3,}\s*", "", c)
+			c = re.sub(r"\s*[*=\-#/]{3,}$", "", c)
+			c = re.sub(r"^\*\s+", "", c)
 			c = re.sub(r"^!(?=[<\s])", "", c)
 			c = re.sub(r"^<(?=\s)", "", c)
-			line = f"{m.group(1)}/* {c} */"
+			c = c.strip()
+			if c:
+				line = f"{m.group(1)}/* {c} */"
+			else:
+				continue
 
 		out.append(line)
 		paren_depth = max(0, paren_depth + _code_paren_delta(line))
@@ -1152,7 +1161,10 @@ def collapse_single_line_block_comments(lines):
 		m_body = re.match(r"^\s*\*\s+(\S.*?)\s*$", lines[i + 1]) if m_open else None
 		m_close = re.match(r"^\s*\*/\s*$", lines[i + 2]) if m_body else None
 		if m_open and m_body and m_close:
-			out.append(f"{m_open.group(1)}/* {m_body.group(1)} */")
+			content = m_body.group(1)
+			content = re.sub(r"^[*=\-#/ ]{3,}\s*", "", content)
+			content = re.sub(r"\s*[*=\-#/ ]{3,}$", "", content)
+			out.append(f"{m_open.group(1)}/* {content} */")
 			i += 3
 		else:
 			out.append(lines[i])
@@ -1160,7 +1172,7 @@ def collapse_single_line_block_comments(lines):
 	return out
 
 
-RE_DECO_RUN = re.compile(r"([\*=\-])\1{3,}")
+RE_DECO_RUN = re.compile(r"([\*=\-/#])\1{3,}")
 RE_PURE_DECO = re.compile(r"^\s*/?[\s*/=\-]*$")
 
 
@@ -1480,6 +1492,23 @@ def _array_per_line(decl_text: str) -> int:
 		return 4
 	return 8 if re.search(r"\b(char|short)\b", decl_text) else 4
 
+
+
+def _parse_decl_brace(lines, i):
+	"""匹配初始化器声明：'= {' 同行，或 '=' 行尾且下一行以 { 开头。
+	返回 (decl, 初始 body, 区域收集起始行号)；不匹配返回 None。"""
+	m = re.match(r"^(\s*.*?=\s*)\{(.*)$", lines[i])
+	if m:
+		return m.group(1), m.group(2), i + 1
+	if i + 1 < len(lines) and lines[i + 1].lstrip().startswith("{"):
+		m = re.match(r"^(\s*.*?=\s*)$", lines[i])
+		if m:
+			brace_line = lines[i + 1]
+			decl = m.group(1)
+			if not decl.endswith(" "):
+				decl += " "
+			return decl, brace_line[brace_line.index("{") + 1 :], i + 2
+	return None
 
 def format_numeric_arrays(lines):
 	"""纯数字常量数组统一排版：
@@ -2047,17 +2076,16 @@ def format_struct_arrays(lines):
 	out = []
 	i = 0
 	while i < len(lines):
-		m = re.match(r"^(\s*.*?=\s*)\{(.*)$", lines[i])
-		if not m:
+		parsed = _parse_decl_brace(lines, i)
+		if not parsed:
 			out.append(lines[i])
 			i += 1
 			continue
-		decl, body = m.group(1), m.group(2)
+		decl, body, j = parsed
 		decl_braced = False
 		ind = decl[: len(decl) - len(decl.lstrip())]
 
 		depth = 1 + body.count("{") - body.count("}")
-		j = i + 1
 		while depth > 0 and j < len(lines):
 			body += "\n" + lines[j]
 			depth += lines[j].count("{") - lines[j].count("}")
@@ -2143,7 +2171,7 @@ def format_struct_arrays(lines):
 		if pre_comments:
 			ok = False
 		tail = text[pos:].strip()
-		if not ok or not elements or not re.match(r"^\}\s*;?\s*$", tail):
+		if not ok or not elements or not re.match(r"^\}\s*[,;]?\s*$", tail):
 			out.append(lines[i])
 			i += 1
 			continue
@@ -2270,15 +2298,14 @@ def format_designated_inits(lines):
 	out = []
 	i = 0
 	while i < len(lines):
-		m = re.match(r"^(\s*.*?=\s*)\{(.*)$", lines[i])
-		if not m:
+		parsed = _parse_decl_brace(lines, i)
+		if not parsed:
 			out.append(lines[i])
 			i += 1
 			continue
-		decl, body = m.group(1), m.group(2)
+		decl, body, j = parsed
 		ind = decl[: len(decl) - len(decl.lstrip())]
 		depth = 1 + body.count("{") - body.count("}")
-		j = i + 1
 		while depth > 0 and j < len(lines):
 			body += "\n" + lines[j]
 			depth += lines[j].count("{") - lines[j].count("}")
@@ -2351,7 +2378,7 @@ def format_designated_inits(lines):
 			if post_c:
 				line += " " + post_c
 			out.append(line)
-		out.append(f"{ind}}};")
+		out.append(f"{ind}}}{tail}")
 		i = j
 
 	return out
@@ -2364,9 +2391,9 @@ def format_commented_arrays(lines):
 	out = []
 	i = 0
 	while i < len(lines):
-		m = re.match(r"^(\s*.*?=\s*)\{(.*)$", lines[i])
-		if m:
-			decl, body = m.group(1), m.group(2)
+		parsed = _parse_decl_brace(lines, i)
+		if parsed:
+			decl, body, j = parsed
 			decl_braced = False
 			# [IDX] = { 指定下标元素属于结构体数组的元素，归 format_struct_arrays
 			if decl.strip().startswith("["):
@@ -2395,9 +2422,9 @@ def format_commented_arrays(lines):
 				continue
 			decl, body = m2.group(1) + "{", m2.group(2)
 			decl_braced = True
+			j = i + 1
 		ind = decl[: len(decl) - len(decl.lstrip())]
 		depth = 1 + body.count("{") - body.count("}")
-		j = i + 1
 		while depth > 0 and j < len(lines):
 			body += "\n" + lines[j]
 			depth += lines[j].count("{") - lines[j].count("}")
@@ -2466,7 +2493,7 @@ def format_commented_arrays(lines):
 				for c in pre_cs:
 					out.append(f"{ind}\t{c}")
 			out.append(f"{ind}\t{elem},")
-		out.append(f"{ind}}};")
+		out.append(f"{ind}}}{tail}")
 		i = j
 
 	return out
