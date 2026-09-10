@@ -15,11 +15,11 @@ vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
 					filepath
 				})
 			else
-				local clang_format_style = "file:" .. vim.fn.expand("$HOME") .. "/.clang-format"
-				vim.fn.system({ "clang-format", "-style=" .. clang_format_style, "-i", filepath })
-				local uncrustify_cfg = vim.fn.expand("$HOME") .. "/.uncrustify.cfg"
-				vim.fn.system({ "uncrustify", "-c", uncrustify_cfg, "--replace", "--no-backup", filepath })
-				vim.fn.system({ "perl", vim.fn.expand("$HOME") .. "/.vim/bin/tools/common/ast_post.pl", filepath })
+				-- local clang_format_style = "file:" .. vim.fn.expand("$HOME") .. "/.clang-format"
+				-- vim.fn.system({ "clang-format", "-style=" .. clang_format_style, "-i", filepath })
+				-- local uncrustify_cfg = vim.fn.expand("$HOME") .. "/.uncrustify.cfg"
+				-- vim.fn.system({ "uncrustify", "-c", uncrustify_cfg, "--replace", "--no-backup", filepath })
+				-- vim.fn.system({ "perl", vim.fn.expand("$HOME") .. "/.vim/bin/tools/common/ast_post.pl", filepath })
 				vim.fn.system({ vim.fn.expand("$HOME") .. "/.config/nvim/tools/cstyle.py", filepath })
 			end
 
