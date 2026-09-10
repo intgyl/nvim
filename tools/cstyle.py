@@ -880,7 +880,7 @@ def collapse_blanks(lines, keep=1):
 RE_PP_INDENTED = re.compile(r"^\s+#\s*(?:if|ifdef|ifndef|endif|else|elif)\b")
 RE_PP_COND_CODE = re.compile(r"^(\s*)#\s*(ifdef|ifndef)\s+(\S+)\s+(\S.*)$")
 RE_PP_IF_CODE = re.compile(r"^(\s*)#\s*if\s+((?:defined\s*\(\s*\w+\s*\)|(?!defined\b)\w+))\s+(\S.*)$")
-RE_COND_OP = re.compile(r"^(?:\|\||&&|==|!=|<=|>=|[|&)])")
+RE_COND_OP = re.compile(r"^(?:\|\||&&|==|!=|<=|>=|[-+*/%~^?:!<>&|=])")
 
 
 def normalize_pp_lines(lines):
@@ -966,9 +966,9 @@ RE_BANNER_TAIL = re.compile(r"^(\s*)/\*\s*([^*/]*?\S)\s*[-=]{3,}\s*\*/\s*$")
 RE_STAR_PAD = re.compile(r"^(\s*/\*\s*[^*]*?\S)[ \t]*\*{2,}[ \t]*\*/[ \t]*$")
 RE_SLASH_FULL = re.compile(r"^(\s*)//\s?(.*)$")
 RE_SLASH_TAIL = re.compile(r"^(\s*)(\S.*?)\s*//\s?(.*)$")
-RE_BLOCK_TAIL = re.compile(r"^(\s*)(\S(?:.*?\S)?)\s*/\*(?:!(?=[<\s])|<(?=\s))?\s*(.*?)\s*\*/\s*$")
+RE_BLOCK_TAIL = re.compile(r"^(\s*)(\S(?:.*?\S)?)\s*/\*(?:(?:!(?=[<\s]))|(?:<(?=\s))){0,2}\s*(.*?)\s*\*/\s*$")
 RE_ONELINE = re.compile(r"^(\s*)/\*\s*(\S(?:.*?\S)?)\s*\*/(\s*)$")
-RE_CONT_OP = re.compile(r"[|&,(+\-=]\s*$")
+RE_CONT_OP = re.compile(r"[|&+\-=]\s*$")
 
 
 RE_SIMPLE_MACRO_BODY = re.compile(r"[;{}]|\b(?:do|while|if|for|else|switch)\b")
@@ -1076,9 +1076,9 @@ def pre_transform(lines, def_mode):
 					c = c.replace("/*", "").replace("*/", "").rstrip()
 				c = re.sub(r"^<-+\s*", "", c)
 				complete = (
-					bool(re.search(r"[;{}:]\s*$", code))
+					bool(re.search(r"[;{}:,]\s*$", code))
 					or code.startswith("#")
-					or bool(RE_CONTROL.match(code))
+					or bool(RE_CONTROL_HEAD.match(code))
 				)
 				cont = bool(out and RE_CONT_OP.search(out[-1]))
 				if (
@@ -1105,7 +1105,7 @@ def pre_transform(lines, def_mode):
 				complete = (
 					bool(re.search(r"[;{}:,]\s*$", code))
 					or code.startswith("#")
-					or bool(RE_CONTROL.match(code))
+					or bool(RE_CONTROL_HEAD.match(code))
 				)
 				cont = bool(out and RE_CONT_OP.search(out[-1]))
 				if (
@@ -1192,7 +1192,13 @@ def remove_decorative_lines(lines):
 		if RE_PURE_DECO.match(line) and RE_DECO_RUN.search(line):
 			prev = lines[i - 1] if i > 0 else ""
 			nxt = lines[i + 1] if i + 1 < len(lines) else ""
-			if "|" in prev or "|" in nxt:
+			# 相邻行是 | 开头或结尾的 ASCII 表格行时才视为表格边框保留
+			if (
+				prev.strip().startswith("|")
+				or prev.strip().endswith("|")
+				or nxt.strip().startswith("|")
+				or nxt.strip().endswith("|")
+			):
 				out.append(line)
 				continue
 			ind = line[: len(line) - len(line.lstrip())]
@@ -1550,10 +1556,16 @@ def format_numeric_arrays(lines):
 			out.append(lines[i])
 			i += 1
 			continue
-		if "/*" in head or "{" in head:
+		if "{" in head:
 			out.append(lines[i])
 			i += 1
 			continue
+
+		# 提取行尾注释及其所注解的元素位置（第几个逗号后 = 跟随第几个元素）
+		comments = {}
+		for cm in re.finditer(r"/\*.*?\*/", head, re.S):
+			comments[head[: cm.start()].count(",") - 1] = cm.group(0)
+		head = re.sub(r"/\*.*?\*/", "", head, flags=re.S)
 
 		elements = [e.strip() for e in head.split(",") if e.strip()]
 		per_line = _array_per_line(decl)
@@ -1566,10 +1578,31 @@ def format_numeric_arrays(lines):
 			continue
 
 		out.append(f"{indent}{decl}{{")
+		standalone = []
+		trailing = {}
+		for e, c in comments.items():
+			# 含 2+ 逗号的注释是被注释掉的数据行，独立成行以保持位置稳定
+			if c.count(",") >= 2:
+				standalone.append((e, c))
+			else:
+				trailing[e] = c
+		standalone.sort()
+
 		for k in range(0, len(elements), per_line):
 			chunk = elements[k : k + per_line]
 			last = k + per_line >= len(elements)
-			out.append(f"{indent}\t{', '.join(chunk)}{'' if last else ','}")
+			line = f"{indent}\t{', '.join(chunk)}{'' if last else ','}"
+			cmts = [
+				trailing[e]
+				for e in range(k, min(k + per_line, len(elements)))
+				if e in trailing
+			]
+			if cmts:
+				line += " " + " ".join(cmts)
+			out.append(line)
+			for e, c in standalone:
+				if k <= e < k + per_line:
+					out.append(f"{indent}\t{c}")
 		out.append(f"{indent}}};")
 		i = j
 
@@ -1726,17 +1759,28 @@ RE_TYPE_ONELINE = re.compile(
 
 
 def _split_top_level(body: str, sep: str):
-	"""按顶层分隔符切分（括号/方括号内、字符串/字符字面量内的分隔符不算）。"""
+	"""按顶层分隔符切分（括号/方括号内、字符串/字符字面量、注释内的分隔符不算）。"""
 	parts, depth, cur = [], 0, ""
 	quote = None
 	escaped = False
-	for ch in body:
+	i = 0
+	while i < len(body):
 		if quote:
-			cur += ch
-			if ch == quote and not escaped:
+			cur += body[i]
+			if body[i] == quote and not escaped:
 				quote = None
-			escaped = (ch == "\\" and not escaped)
+			escaped = (body[i] == "\\" and not escaped)
+			i += 1
 			continue
+		if body.startswith("/*", i):
+			end = body.find("*/", i + 2)
+			if end < 0:
+				cur += body[i:]
+				break
+			cur += body[i : end + 2]
+			i = end + 2
+			continue
+		ch = body[i]
 		if ch in "\"'":
 			quote = ch
 			cur += ch
@@ -1751,6 +1795,7 @@ def _split_top_level(body: str, sep: str):
 			cur = ""
 		else:
 			cur += ch
+		i += 1
 	parts.append(cur)
 	return parts
 
@@ -2031,18 +2076,29 @@ def _norm_comment(text: str) -> str:
 	return text
 
 def _split_top_commas(text: str):
-	"""按顶层逗号切分结构体元素内部字段（花括号/括号/字符串内的逗号不算），
+	"""按顶层逗号切分结构体元素内部字段（花括号/括号/字符串/注释内的逗号不算），
 	每个字段内部空白归一化为单空格。"""
 	parts, depth_brace, depth_paren, cur = [], 0, 0, ""
 	quote = None
 	escaped = False
-	for ch in text:
+	i = 0
+	while i < len(text):
 		if quote:
-			cur += ch
-			if ch == quote and not escaped:
+			cur += text[i]
+			if text[i] == quote and not escaped:
 				quote = None
-			escaped = (ch == "\\" and not escaped)
+			escaped = (text[i] == "\\" and not escaped)
+			i += 1
 			continue
+		if text.startswith("/*", i):
+			end = text.find("*/", i + 2)
+			if end < 0:
+				cur += text[i:]
+				break
+			cur += text[i : end + 2]
+			i = end + 2
+			continue
+		ch = text[i]
 		if ch in "\"'":
 			quote = ch
 			cur += ch
@@ -2063,6 +2119,7 @@ def _split_top_commas(text: str):
 			cur = ""
 		else:
 			cur += ch
+		i += 1
 	parts.append(cur)
 	return [
 		re.sub(r"\s+", " ", part).strip() for part in parts if part.strip()
@@ -2436,7 +2493,7 @@ def format_commented_arrays(lines):
 			i += 1
 			continue
 		inner_all, _, tail = body.rpartition("}")
-		if re.search(r"\{[ \t\n]*[^\s}]", inner_all) or not re.match(r"^\s*[,;]?\s*$", tail):
+		if re.search(r"\{[ \t\n]*[^\s}]", inner_all) or not re.match(r"^\s*[,;]?\s*(/\*(?:[^*]|\*(?!/))*\*/\s*)?$", tail):
 			out.append(lines[i])
 			i += 1
 			continue
@@ -2471,19 +2528,24 @@ def format_commented_arrays(lines):
 			if not ok:
 				break
 			elem = re.sub(r"\s+", " ", s).strip()
-			m2 = re.match(r"^(.*?)\s*(/\*.*\*/)\s*$", elem, re.S)
-			if m2 and m2.group(1).strip():
+			# 循环剥离元素文本末尾的注释（非跨越式匹配，防止贪婪吞掉多条注释）
+			while True:
+				m2 = re.match(
+					r"^(.*?)\s*(/\*(?:[^*]|\*(?!/))*\*/)\s*$", elem, re.S
+				)
+				if not m2 or not m2.group(1).strip():
+					break
 				elem = m2.group(1).strip()
-				items.append((elem, pre_cs + [_norm_comment(m2.group(2))]))
-				continue
-			if m2 and not m2.group(1).strip():
-				pre = pre_cs + [_norm_comment(m2.group(2))]
-				continue
+				pre_cs.append(_norm_comment(m2.group(2)))
 			if elem:
 				items.append((elem, pre_cs))
 			elif pre_cs:
 				pre = pre_cs
-		if not ok or not items:
+		if (
+			not ok
+			or not items
+			or all(RE_NUMERIC.match(elem) for elem, _ in items)
+		):
 			out.append(lines[i])
 			i += 1
 			continue
@@ -2495,23 +2557,55 @@ def format_commented_arrays(lines):
 				for c in pre_cs:
 					out.append(f"{ind}\t{c}")
 			out.append(f"{ind}\t{elem},")
+		for c in pre:
+			out.append(f"{ind}\t{c}")
 		out.append(f"{ind}}}{tail}")
 		i = j
 
 	return out
 
 
+
+def align_escaped_newlines(lines):
+	"""多行宏的续行反斜杠对齐到最长内容行后的下一个 Tab 位。"""
+	out = []
+	i = 0
+	while i < len(lines):
+		if lines[i].rstrip().endswith("\\"):
+			start = i
+			j = i
+			while j < len(lines) and lines[j].rstrip().endswith("\\"):
+				j += 1
+			contents = [lines[k].rstrip()[:-1].rstrip() for k in range(start, j)]
+			maxw = max(len(c.expandtabs(8)) for c in contents)
+			target = ((maxw + 8) // 8) * 8
+			for c in contents:
+				w = len(c.expandtabs(8))
+				pad = ""
+				while w < target:
+					pad += "\t"
+					w = (w + 8) - (w % 8)
+				out.append(c + pad + "\\")
+			i = j
+		else:
+			out.append(lines[i])
+			i += 1
+	return out
+
 def post_transform(lines, def_mode=False):
-	# 续行符 \ 后面的空行会使宏定义中断，一律删除
-	lines = [
-		line
-		for i, line in enumerate(lines)
-		if not (
-			line.strip() == ""
-			and i > 0
-			and lines[i - 1].rstrip().endswith("\\")
-		)
-	]
+	# 续行符 \ 后面紧跟的空行：若空行之后仍以 \ 续行（宏被真正中断）则删除；
+	# 若下一行不再续行，该空行是宏的合法终止，保留
+	def _broken_macro_blank(i):
+		if lines[i].strip() != "" or i == 0:
+			return False
+		if not lines[i - 1].rstrip().endswith("\\"):
+			return False
+		k = i + 1
+		while k < len(lines) and lines[k].strip() == "":
+			k += 1
+		return k < len(lines) and lines[k].rstrip().endswith("\\")
+
+	lines = [line for i, line in enumerate(lines) if not _broken_macro_blank(i)]
 
 	# 空循环体分号并回控制行
 	out, i = [], 0
@@ -2552,6 +2646,7 @@ def post_transform(lines, def_mode=False):
 		lines = align_defines_reference_groups(lines)
 	else:
 		lines = align_defines(lines)
+	lines = align_escaped_newlines(lines)
 	lines = [RE_WS.sub("", l) for l in lines]
 	return lines
 
@@ -2560,9 +2655,35 @@ def post_transform(lines, def_mode=False):
 # main
 # ---------------------------------------------------------------------------
 
+
+RE_ASM_DIRECTIVE = re.compile(
+	r"^\s*\.(?:macro|endm|option|section|text|data|bss|globl|global|align|equ|set|org|type|size|weak|thumb|arm|code|cpu|arch|ident)\b"
+)
+RE_ASM_INSN = re.compile(
+	r"^\s*(?:li|lui|auipc|addi|add|sub|slli|srli|sll|srl|sra|csrr|csrw|csrc|csrs|mv|ret|jal?r?|bne|beq|blt|bge|bltu|bgeu|bnez|beqz|lw|ld|sw|sd|lb|lh|sb|sh|nop|ecall|ebreak|mret|wfi|fence|la|lla|neg|sext|zext|not|and|or|xor|andi|ori|xori|sltu?|sltiu?|remu?|divu?|mul|mulh|mulhu|mulhsu|load_[a-z]|store_[a-z])\s"
+)
+
+
+def is_asm_file(lines):
+	"""含 .macro/.endm 或成规模汇编指令行的文件按汇编处理：
+	clang-format 与代码结构规则会破坏 GAS 汇编，只做注释与空白规则。"""
+	code = [
+		l for l in lines
+		if l.strip() and not l.lstrip().startswith(("/*", "*", "//"))
+	]
+	if not code:
+		return False
+	directives = sum(1 for l in code if RE_ASM_DIRECTIVE.match(l))
+	if directives >= 2:
+		return True
+	insns = sum(1 for l in code if RE_ASM_INSN.match(l))
+	return insns >= 4 and insns * 10 > len(code)
+
+
 def process(path: Path, style_path: Path):
 	lines, encoding = read_lines(path)
 	def_mode = is_register_def_file(lines)
+	asm_mode = False if def_mode else is_asm_file(lines)
 
 	if def_mode:
 		lines = merge_multiline_defines(lines)
@@ -2574,6 +2695,13 @@ def process(path: Path, style_path: Path):
 	lines = remove_empty_comment_blocks(lines)
 	lines = collapse_blanks(lines)
 	write_lines(path, lines, encoding)
+
+	if asm_mode:
+		lines = [RE_WS.sub("", l) for l in lines]
+		lines = collapse_blanks(lines)
+		write_lines(path, lines, encoding)
+		print(f"done: {path} (asm)")
+		return
 
 	if not def_mode:
 		run_clang_format(path, style_path)
