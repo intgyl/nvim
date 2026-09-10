@@ -25,35 +25,40 @@ opt.updatetime = 500
 
 local is_ssh = os.getenv("SSH_TTY") ~= nil
 
-if not is_ssh then
-	local augroup = vim.api.nvim_create_augroup("YANK_TO_CLIPBOARD", { clear = true })
+local yank_clipboard_enabled = false
+local yank_augroup = vim.api.nvim_create_augroup("YANK_TO_CLIPBOARD", { clear = true })
+
+local function enable_yank_to_clipboard()
+	vim.api.nvim_clear_autocmds({ group = yank_augroup })
 	vim.api.nvim_create_autocmd("TextYankPost", {
-		group = augroup,
+		group = yank_augroup,
 		pattern = "*",
 		callback = function()
 			local evt = vim.v.event
 			if evt.operator == "y" and evt.regname ~= "_" then
-				vim.fn.setreg("+", vim.fn.getreg(evt.regname), evt.regtype)
-			end
-		end,
-	})
-else
-	local augroup = vim.api.nvim_create_augroup("SSH_OSC52_YANK", { clear = true })
-	vim.api.nvim_create_autocmd("TextYankPost", {
-		group = augroup,
-		pattern = "*",
-		callback = function()
-			local evt = vim.v.event
-			if evt.operator == "y" and evt.regname ~= "_" then
-				local text = vim.fn.getreg(evt.regname)
-				local b64 = vim.base64.encode(text)
-				-- OSC52 序列输出到终端
-				io.write(string.format("\027]52;c;%s\027\\", b64))
-				io.flush()
+				if is_ssh then
+					local text = vim.fn.getreg(evt.regname)
+					local b64 = vim.base64.encode(text)
+					-- OSC52 序列输出到终端
+					io.write(string.format("\027]52;c;%s\027\\", b64))
+					io.flush()
+				else
+					vim.fn.setreg("+", vim.fn.getreg(evt.regname), evt.regtype)
+				end
 			end
 		end,
 	})
 end
+
+vim.keymap.set("n", "<leader>y", function()
+	yank_clipboard_enabled = not yank_clipboard_enabled
+	if yank_clipboard_enabled then
+		enable_yank_to_clipboard()
+	else
+		vim.api.nvim_clear_autocmds({ group = yank_augroup })
+	end
+	print("yank to clipboard: " .. tostring(yank_clipboard_enabled))
+end, { desc = "Toggle yank to system clipboard" })
 
 -- 记录上次退出时的位置
 vim.api.nvim_create_autocmd("BufReadPost", {
