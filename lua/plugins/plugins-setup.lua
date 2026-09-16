@@ -53,7 +53,8 @@ local plugins = {
 	"L3MON4D3/LuaSnip",
 	"rafamadriz/friendly-snippets",
 
-	"preservim/nerdcommenter",
+	-- "preservim/nerdcommenter", -- 替换为 comment.nvim
+	"intgyl/comment.nvim",
 	"windwp/nvim-autopairs", -- 自动补全括号
 	"folke/noice.nvim",
 	"rcarriga/nvim-notify",
