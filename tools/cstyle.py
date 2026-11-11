@@ -1483,7 +1483,7 @@ def align_defines_reference_groups(lines):
 RE_ARRAY_DECL = re.compile(
 	r"^(\s*)((?:(?:static|const|volatile)\s+)*"
 	r"(?:u?int(?:8|16|32|64)_t|rt_u?int(?:8|16|32|64)_t|unsigned\s+(?:char|short|int|long)|char|short|int|long)"
-	r"\s+\w+(?:\s*\[[^\]]*\])+\s*=\s*)(?:\{(.*))?$"
+	r"\s+\w+(?:\s*\[[^\]]*\])+(?:\s+[A-Za-z_]\w*)*\s*=\s*)(?:\{(.*))?$"
 )
 RE_NUMERIC = re.compile(r"^[-+]?(?:0[xX][0-9a-fA-F]+|\d+)[uUlL]*$")
 
