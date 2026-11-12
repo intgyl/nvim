@@ -2022,6 +2022,316 @@ def split_single_line_controls(lines):
 	return out
 
 
+# ---------------------------------------------------------------------------
+# normalize if gaps
+# ---------------------------------------------------------------------------
+
+_T_IF = "IF"
+_T_ELSE = "ELSE"
+_T_DO = "DO"
+_T_WHILE = "WHILE"
+_T_FOR = "FOR"
+_T_SWITCH = "SWITCH"
+_T_LBRACE = "{"
+_T_RBRACE = "}"
+_T_LPAREN = "("
+_T_RPAREN = ")"
+_T_SEMI = ";"
+_T_OTHER = "OTHER"
+
+
+class _Token:
+	def __init__(self, typ: str, val: str, line_idx: int):
+		self.type = typ
+		self.val = val
+		self.line_idx = line_idx
+
+
+def _tokenize_code(lines):
+	tokens = []
+	in_block_comment = False
+	in_macro = False
+
+	for line_idx, line in enumerate(lines):
+		# Track multiline preprocessor macro continuations
+		if in_macro:
+			if not line.rstrip().endswith("\\"):
+				in_macro = False
+			continue
+
+		stripped = line.strip()
+		if not in_block_comment and stripped.startswith("#"):
+			if line.rstrip().endswith("\\"):
+				in_macro = True
+			continue
+
+		i = 0
+		n = len(line)
+		while i < n:
+			if in_block_comment:
+				end = line.find("*/", i)
+				if end != -1:
+					in_block_comment = False
+					i = end + 2
+				else:
+					break
+				continue
+
+			if line[i].isspace():
+				i += 1
+				continue
+
+			if line.startswith("/*", i):
+				end = line.find("*/", i + 2)
+				if end != -1:
+					i = end + 2
+				else:
+					in_block_comment = True
+					break
+				continue
+
+			if line.startswith("//", i):
+				break
+
+			if line[i] == '"':
+				i += 1
+				while i < n:
+					if line[i] == '\\':
+						i = min(n, i + 2)
+					elif line[i] == '"':
+						i += 1
+						break
+					else:
+						i += 1
+				tokens.append(_Token(_T_OTHER, '""', line_idx))
+				continue
+
+			if line[i] == "'":
+				i += 1
+				while i < n:
+					if line[i] == '\\':
+						i = min(n, i + 2)
+					elif line[i] == "'":
+						i += 1
+						break
+					else:
+						i += 1
+				tokens.append(_Token(_T_OTHER, "''", line_idx))
+				continue
+
+			ch = line[i]
+			if ch == '{':
+				tokens.append(_Token(_T_LBRACE, '{', line_idx))
+				i += 1
+			elif ch == '}':
+				tokens.append(_Token(_T_RBRACE, '}', line_idx))
+				i += 1
+			elif ch == '(':
+				tokens.append(_Token(_T_LPAREN, '(', line_idx))
+				i += 1
+			elif ch == ')':
+				tokens.append(_Token(_T_RPAREN, ')', line_idx))
+				i += 1
+			elif ch == ';':
+				tokens.append(_Token(_T_SEMI, ';', line_idx))
+				i += 1
+			elif ch.isalpha() or ch == '_':
+				start = i
+				while i < n and (line[i].isalnum() or line[i] == '_'):
+					i += 1
+				word = line[start:i]
+				if word == "if":
+					tokens.append(_Token(_T_IF, word, line_idx))
+				elif word == "else":
+					tokens.append(_Token(_T_ELSE, word, line_idx))
+				elif word == "do":
+					tokens.append(_Token(_T_DO, word, line_idx))
+				elif word == "while":
+					tokens.append(_Token(_T_WHILE, word, line_idx))
+				elif word == "for":
+					tokens.append(_Token(_T_FOR, word, line_idx))
+				elif word == "switch":
+					tokens.append(_Token(_T_SWITCH, word, line_idx))
+				else:
+					tokens.append(_Token(_T_OTHER, word, line_idx))
+			else:
+				tokens.append(_Token(_T_OTHER, ch, line_idx))
+				i += 1
+
+	return tokens
+
+
+class _IfParser:
+	def __init__(self, tokens):
+		self.tokens = tokens
+		self.pos = 0
+		self.n = len(tokens)
+		self.if_ends = []
+
+	def peek(self):
+		if self.pos < self.n:
+			return self.tokens[self.pos]
+		return None
+
+	def advance(self):
+		tok = self.peek()
+		if tok:
+			self.pos += 1
+		return tok
+
+	def skip_paren_group(self):
+		if not self.peek() or self.peek().type != _T_LPAREN:
+			return None
+		depth = 0
+		last = None
+		while self.pos < self.n:
+			tok = self.advance()
+			last = tok
+			if tok.type == _T_LPAREN:
+				depth += 1
+			elif tok.type == _T_RPAREN:
+				depth -= 1
+				if depth == 0:
+					break
+		return last
+
+	def parse_block(self):
+		if not self.peek() or self.peek().type != _T_LBRACE:
+			return None
+		self.advance()
+		last = None
+		while self.pos < self.n:
+			tok = self.peek()
+			if tok.type == _T_RBRACE:
+				last = self.advance()
+				break
+			old_pos = self.pos
+			self.parse_statement()
+			if self.pos == old_pos:
+				self.advance()
+		return last
+
+	def parse_statement(self):
+		tok = self.peek()
+		if not tok:
+			return None
+
+		if tok.type == _T_IF:
+			return self.parse_if()
+		if tok.type == _T_LBRACE:
+			return self.parse_block()
+		if tok.type in (_T_WHILE, _T_FOR, _T_SWITCH):
+			self.advance()
+			self.skip_paren_group()
+			return self.parse_statement()
+		if tok.type == _T_DO:
+			self.advance()
+			self.parse_statement()
+			if self.peek() and self.peek().type == _T_WHILE:
+				self.advance()
+				self.skip_paren_group()
+			if self.peek() and self.peek().type == _T_SEMI:
+				return self.advance()
+			return None
+		if tok.type == _T_SEMI:
+			return self.advance()
+
+		paren_depth = 0
+		last = None
+		prev_tok = None
+		while self.pos < self.n:
+			t = self.peek()
+			if t.type == _T_LBRACE and paren_depth == 0:
+				if prev_tok and prev_tok.val == '=':
+					self.advance()
+					self.parse_init_brace()
+					last = t
+					continue
+				return self.parse_block()
+
+			t = self.advance()
+			last = t
+			if t.type == _T_LPAREN:
+				paren_depth += 1
+			elif t.type == _T_RPAREN:
+				if paren_depth > 0:
+					paren_depth -= 1
+			elif t.type == _T_RBRACE:
+				self.pos -= 1
+				break
+			elif t.type == _T_SEMI:
+				if paren_depth == 0:
+					break
+			prev_tok = t
+		return last
+
+	def parse_init_brace(self):
+		depth = 1
+		while self.pos < self.n and depth > 0:
+			t = self.advance()
+			if t.type == _T_LBRACE:
+				depth += 1
+			elif t.type == _T_RBRACE:
+				depth -= 1
+
+	def parse_if(self):
+		self.advance()
+		self.skip_paren_group()
+
+		last_tok = self.parse_statement()
+
+		while self.peek() and self.peek().type == _T_ELSE:
+			self.advance()
+			last_tok = self.parse_statement()
+
+		if last_tok:
+			self.if_ends.append(last_tok)
+		return last_tok
+
+	def parse_all(self):
+		while self.pos < self.n:
+			old_pos = self.pos
+			self.parse_statement()
+			if self.pos == old_pos:
+				self.advance()
+
+
+def normalize_if_gaps(lines):
+	"""Ensure a blank line after an if block/statement terminates,
+	whether braced or unbraced, when followed by subsequent statements."""
+	tokens = _tokenize_code(lines)
+	parser = _IfParser(tokens)
+	parser.parse_all()
+
+	insert_after = set()
+	for end_tok in parser.if_ends:
+		line_idx = end_tok.line_idx
+		k = line_idx + 1
+		while k < len(lines) and lines[k].strip() == "":
+			k += 1
+		if k < len(lines):
+			if k > line_idx + 1:
+				continue
+			nxt = lines[k]
+			# Do not insert before closing brace of enclosing block
+			if re.match(r"^\s*\}", nxt):
+				continue
+			# Do not insert before preprocessor directives
+			if nxt.lstrip().startswith("#"):
+				continue
+			# Do not break macro continuations
+			if lines[line_idx].rstrip().endswith("\\") or nxt.rstrip().endswith("\\"):
+				continue
+			insert_after.add(line_idx)
+
+	out = []
+	for idx, line in enumerate(lines):
+		out.append(line)
+		if idx in insert_after:
+			out.append("")
+	return out
+
+
 RE_IF_OPEN = re.compile(r"^#(?:if|ifdef|ifndef)\b")
 RE_IF_MID = re.compile(r"^#(?:else|elif)\b")
 RE_IF_CLOSE = re.compile(r"^#endif\b")
@@ -2641,6 +2951,7 @@ def post_transform(lines, def_mode=False):
 	lines = rebalance_tiny_tails(lines)
 	lines = split_case_statements(lines)
 	lines = split_single_line_controls(lines)
+	lines = normalize_if_gaps(lines)
 	lines = normalize_pp_gaps(lines)
 	if def_mode:
 		lines = align_defines_reference_groups(lines)
