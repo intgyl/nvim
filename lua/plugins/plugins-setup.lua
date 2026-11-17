@@ -73,15 +73,7 @@ local plugins = {
 		dependencies = { 'nvim-lua/plenary.nvim' },
 	},
 
-	{
-		"milanglacier/minuet-ai.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"hrsh7th/nvim-cmp",
-		},
-	},
-
---	"github/copilot.vim",
+	"github/copilot.vim",
 --	{
 --		"CopilotC-Nvim/CopilotChat.nvim",
 --		dependencies = {
@@ -89,14 +81,6 @@ local plugins = {
 --			{ "nvim-lua/plenary.nvim"},
 --		},
 --	},
-
-	{
-		"Exafunction/windsurf.nvim",
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"hrsh7th/nvim-cmp",
-		},
-	},
 
 	"dhananjaylatkar/cscope_maps.nvim"
 

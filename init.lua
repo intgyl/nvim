@@ -29,8 +29,6 @@ require("plugins/toggleterm")
 -- require("plugins/nerdcommenter") -- 已替换为 comment.nvim
 require("plugins/comment")
 -- require("plugins/copilot-chat")
-require("plugins/windsurf")
--- require("plugins/minuet")
 require("plugins/code_style")
 require("plugins/markdown")
 require("plugins/markdown-image")
