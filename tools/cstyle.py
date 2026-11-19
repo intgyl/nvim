@@ -881,12 +881,47 @@ RE_PP_INDENTED = re.compile(r"^\s+#\s*(?:if|ifdef|ifndef|endif|else|elif)\b")
 RE_PP_COND_CODE = re.compile(r"^(\s*)#\s*(ifdef|ifndef)\s+(\S+)\s+(\S.*)$")
 RE_PP_IF_CODE = re.compile(r"^(\s*)#\s*if\s+((?:defined\s*\(\s*\w+\s*\)|(?!defined\b)\w+))\s+(\S.*)$")
 RE_COND_OP = re.compile(r"^(?:\|\||&&|==|!=|<=|>=|[-+*/%~^?:!<>&|=])")
+RE_PP_DEFINE = re.compile(r"^(\s*#\s*define\s+[A-Za-z_]\w*(?:\([^)]*\))?)(\s+)(\S.*)$")
+
+
+def _normalize_define_val(val: str) -> str:
+	"""清理宏定义值内部（非字符串/注释内）的多余空白与Tab。"""
+	m = re.match(r"^(.*?)([ \t]*/\*.*?\*/[ \t]*)$", val)
+	if m:
+		code, comment = m.group(1), m.group(2)
+	else:
+		code, comment = val, ""
+	parts = []
+	i = 0
+	n = len(code)
+	while i < n:
+		if code[i] in "\"'":
+			q = code[i]
+			start = i
+			i += 1
+			while i < n:
+				if code[i] == "\\":
+					i += 2
+				elif code[i] == q:
+					i += 1
+					break
+				else:
+					i += 1
+			parts.append(code[start:i])
+		else:
+			start = i
+			while i < n and code[i] not in "\"'":
+				i += 1
+			segment = re.sub(r"[ \t]+", " ", code[start:i])
+			parts.append(segment)
+	return "".join(parts).rstrip() + comment
 
 
 def normalize_pp_lines(lines):
 	"""#if/#ifdef/#endif 等预处理指令顶行（去缩进）；
 	#ifdef/#if 条件后跟随的代码拆到下一行（保持原缩进）。
-	条件以 ||/&&/比较运算符延续的不拆。"""
+	条件以 ||/&&/比较运算符延续的不拆；
+	单行 #define 值内部多余空白与Tab清理。"""
 	out = []
 	for line in lines:
 		m = RE_PP_COND_CODE.match(line)
@@ -904,6 +939,12 @@ def normalize_pp_lines(lines):
 		if RE_PP_INDENTED.match(line):
 			out.append(line.lstrip())
 			continue
+		if not line.rstrip().endswith("\\"):
+			m_def = RE_PP_DEFINE.match(line)
+			if m_def:
+				head, sep, val = m_def.groups()
+				out.append(f"{head}{sep}{_normalize_define_val(val)}")
+				continue
 		out.append(line)
 	return out
 
@@ -971,33 +1012,38 @@ RE_ONELINE = re.compile(r"^(\s*)/\*\s*(\S(?:.*?\S)?)\s*\*/(\s*)$")
 RE_CONT_OP = re.compile(r"[|&+\-=]\s*$")
 
 
-RE_SIMPLE_MACRO_BODY = re.compile(r"[;{}]|\b(?:do|while|if|for|else|switch)\b")
+RE_COMPLEX_MACRO_BODY = re.compile(r"[;{}]|\b(?:do|while|if|for|else|switch)\b")
+RE_FUNC_MACRO_DEF = re.compile(r"^\s*#\s*define\s+\w+\(")
 
 
 def merge_multiline_defines(lines):
 	"""--def 模式：多行 #define 先合并为单行（再处理行尾注释，防续行注释被抽走）。
 
 	只合并寄存器地址、位或运算等单表达式简单宏；含语句的复杂宏
-	（do-while、if、多条语句）按规范保持多行格式，不合并。
+	（do-while、if、多条语句）以及带参数的函数式多行宏按规范保持多行格式，不合并。
 	"""
 	out, i = [], 0
 	while i < len(lines):
 		line = lines[i]
-		if line.startswith("#define ") and re.search(r"\\\s*$", line):
+		if re.match(r"^\s*#\s*define\b", line) and re.search(r"\\\s*$", line):
 			start = i
-			merged = re.sub(r"\\\s*$", "", line)
+			merged = re.sub(r"\s*\\\s*$", "", line).rstrip()
 			while i + 1 < len(lines):
 				i += 1
 				cont = lines[i]
 				more = bool(re.search(r"\\\s*$", cont))
-				cont = re.sub(r"\\\s*$", "", cont).lstrip()
+				cont = re.sub(r"\s*\\\s*$", "", cont).strip()
 				merged += " " + cont
 				if not more:
 					break
-			if RE_SIMPLE_MACRO_BODY.search(merged):
+			line_count = i - start + 1
+			is_func = bool(RE_FUNC_MACRO_DEF.match(lines[start]))
+			has_stmt = bool(RE_COMPLEX_MACRO_BODY.search(merged))
+			clean = re.sub(r"\s+", " ", merged)
+			if has_stmt or is_func or line_count > 2 or len(clean) > 80 or "?" in merged:
 				out.extend(lines[start : i + 1])
 			else:
-				out.append(re.sub(r"\s+", " ", merged))
+				out.append(clean)
 		else:
 			out.append(line)
 		i += 1
@@ -1314,7 +1360,7 @@ def run_clang_format(path: Path, style_path: Path):
 
 RE_EMPTY_LOOP = re.compile(r"^(\s*(?:while|for)\s*\(.*\))\s*$")
 RE_ELSE = re.compile(r"^\s*\}\s*else\b")
-RE_DEFINE = re.compile(r"^#define\s+(\S+)\s+(\S.*)$")
+RE_DEFINE = re.compile(r"^#define\s+([A-Za-z_]\w*(?:\([^)]*\))?)\s+(\S.*)$")
 RE_COMMENT_LINE = re.compile(r"^\s*/\*.*\*/\s*$")
 
 
@@ -1340,12 +1386,15 @@ def align_defines(lines):
 				matches[i] = m
 		obj = {i: m for i, m in matches.items() if "(" not in m.group(1)}
 		if len(matches) >= 2 and obj:
-			target = max(len(m.group(1)) for m in obj.values()) + 1
+			lens = [len(m.group(1)) for m in obj.values()]
+			base_lens = [l for l in lens if l <= min(lens) + 32]
+			target = max(base_lens if base_lens else lens) + 1
 			if target % 8:
 				target += 8 - target % 8
 			for i, m in obj.items():
 				name = m.group(1)
-				region[i] = "#define " + name + tab_pad(name, target) + m.group(2)
+				val = _normalize_define_val(m.group(2))
+				region[i] = "#define " + name + tab_pad(name, target) + val
 		out.extend(region)
 		region = []
 
@@ -1453,11 +1502,14 @@ def align_defines_reference_groups(lines):
 
 	def flush():
 		if len(group) >= 2:
-			target = max(len(disp) for _, disp, _, _ in group) + 1
+			lens = [len(disp) for _, disp, _, _ in group]
+			base_lens = [l for l in lens if l <= min(lens) + 32]
+			target = max(base_lens if base_lens else lens) + 1
 			if target % 8:
 				target += 8 - target % 8
 			for idx, disp, _, value in group:
-				out[idx] = "#define " + disp + tab_pad(disp, target) + value
+				val = _normalize_define_val(value)
+				out[idx] = "#define " + disp + tab_pad(disp, target) + val
 		group.clear()
 		names.clear()
 
